@@ -27,7 +27,7 @@ class Hasher
             case HashType.SHA512:
                 return SHA512.Create();
             default:
-                throw new ArgumentException("Invalid hash type.");
+                throw new ArgumentException("Invalid hash algorithm.");
         }
     }
 }

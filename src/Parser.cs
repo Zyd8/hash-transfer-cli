@@ -12,7 +12,7 @@ class Parser
         }
         else
         {
-            throw new ArgumentException();
+            throw new ArgumentException("Invalid transfer operation chosen.");
         }
     }
 
@@ -36,7 +36,7 @@ class Parser
         }
         else
         {
-            throw new ArgumentException();
+            throw new ArgumentException("Invalid hash algorithm.");
         }
     }
 

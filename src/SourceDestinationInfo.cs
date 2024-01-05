@@ -29,9 +29,7 @@ class SourceDestinationInfo
             }
             else 
             {
-               throw new Exception(
-                $"SourceDestinationInfo.Source instance [{value}] is neither a file nor a directory."
-                );
+               Console.WriteLine($"SourceDestinationInfo.Source instance [{value}] is neither a file nor a directory.");
             }
         }
     }
@@ -47,9 +45,7 @@ class SourceDestinationInfo
             }
             else 
             {
-                throw new DirectoryNotFoundException(
-                    "SourceDestinationInfo.Destination instance directory does not exist."
-                    );
+                Console.WriteLine($"SourceDestinationInfo.Destination instance [{value}] directory does not exist.");
             }
            
         }

@@ -4,11 +4,6 @@ class SourceDestination
     {
         List<FileInfo> mismatchFileInfoList = new List<FileInfo>();
 
-        if (sourceFileInfoList.Count != destFileInfoList.Count)
-        {
-            throw new Exception("External processes affected the program");
-        }
-
         for (int i = 0; i < sourceFileInfoList.Count; i++)
         {
             for (int j = 0; j < destFileInfoList.Count; j++)
