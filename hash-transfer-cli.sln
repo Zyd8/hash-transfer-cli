@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hash-transfer-cli", "hash-transfer-cli\hash-transfer-cli.csproj", "{9AB6C48F-0485-4640-A19C-B084ECF008A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9AB6C48F-0485-4640-A19C-B084ECF008A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB6C48F-0485-4640-A19C-B084ECF008A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB6C48F-0485-4640-A19C-B084ECF008A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB6C48F-0485-4640-A19C-B084ECF008A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CC10496B-AF24-40AB-BD2C-13C52FDF8E4E}
+	EndGlobalSection
+EndGlobal
