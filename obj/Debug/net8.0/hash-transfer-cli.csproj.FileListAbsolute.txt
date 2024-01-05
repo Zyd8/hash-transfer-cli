@@ -1,0 +1,14 @@
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/bin/Debug/net8.0/hash-transfer-cli
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/bin/Debug/net8.0/hash-transfer-cli.deps.json
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/bin/Debug/net8.0/hash-transfer-cli.runtimeconfig.json
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/bin/Debug/net8.0/hash-transfer-cli.dll
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/bin/Debug/net8.0/hash-transfer-cli.pdb
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.GeneratedMSBuildEditorConfig.editorconfig
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.AssemblyInfoInputs.cache
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.AssemblyInfo.cs
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.csproj.CoreCompileInputs.cache
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.dll
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/refint/hash-transfer-cli.dll
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.pdb
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/hash-transfer-cli.genruntimeconfig.cache
+/home/clezentine/Documents/GitHub/hash-transfer-cli/hash-transfer-cli/obj/Debug/net8.0/ref/hash-transfer-cli.dll
