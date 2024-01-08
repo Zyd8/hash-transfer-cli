@@ -84,52 +84,6 @@ class HashTransferService
         public required string InputDestinationPath {get; set;}
     }
 
-    static void Main(string[] args)
-    {
-        Parser.Default.ParseArguments<Options>(args)
-            .WithParsed<Options>(options =>
-        {
-                string currentDirectory = Directory.GetCurrentDirectory();
-
-                string fullSourcePath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputSourcePath)));
-
-                string fullDestPath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputDestinationPath), Path.GetFileName(options.InputSourcePath)));
-
-                TransferMode transferMode = Input.ParseTransferMode(options.InputTransferMode);
-
-                HashType hashType = Input.ParseHashType(options.InputHashType);
-
-                SourceDestinationInfo SourceDestinationInfo = new(fullSourcePath, fullDestPath, transferMode);
-
-                Console.WriteLine("Fetching source file hashes...");
-                List<FileInfo> sourceFileInfoList = GetFileInfoList(SourceDestinationInfo.Source, hashType);
-
-                Console.WriteLine("Transferring files...");
-                DoTransferOperation(SourceDestinationInfo);
-
-                Console.WriteLine("Fetching destination file hashes...");
-                List<FileInfo> destFileInfoList = GetFileInfoList(SourceDestinationInfo.Destination, hashType);
-
-                Console.WriteLine("Comparing file hashes...");
-                int recopyCtr = 0; int recopyLimit = 3;
-                HashTransferResult result = CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
-
-                if (result == HashTransferResult.match)
-                {
-                    Console.WriteLine("All file hashes matched. File Transfer completed successfully!");
-                }
-                else if (result == HashTransferResult.mismatch)
-                {
-                    Console.WriteLine("There are file hashes that did not match");
-                }
-                else 
-                {
-                    throw new Exception();
-                }
-        });
-        
-    }
-
     private static HashTransferResult CheckHashMismatch(List<FileInfo> sourceFileInfoList, List<FileInfo> destFileInfoList, SourceDestinationInfo SourceDestinationInfo, HashType hashType, int recopyCtr, int recopyLimit)
     {
         if (recopyCtr >= recopyLimit)
@@ -158,6 +112,54 @@ class HashTransferService
         {
             return HashTransferResult.match;
         }
+    }
+
+    static void Main(string[] args)
+    {
+        Parser.Default.ParseArguments<Options>(args)
+            .WithParsed<Options>(options =>
+        {
+
+                string currentDirectory = Directory.GetCurrentDirectory();
+
+                string fullSourcePath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputSourcePath)));
+
+                string fullDestPath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputDestinationPath), Path.GetFileName(options.InputSourcePath)));
+
+                TransferMode transferMode = Input.ParseTransferMode(options.InputTransferMode);
+
+                HashType hashType = Input.ParseHashType(options.InputHashType);
+
+                SourceDestinationInfo SourceDestinationInfo = new(fullSourcePath, fullDestPath, transferMode);
+
+                Console.WriteLine("Fetching source file hashes...");
+                List<FileInfo> sourceFileInfoList = GetFileInfoList(SourceDestinationInfo.Source, hashType);
+
+                Console.WriteLine("Transferring files...");
+                DoTransferOperation(SourceDestinationInfo);
+
+                Console.WriteLine("Fetching destination file hashes...");
+                List<FileInfo> destFileInfoList = GetFileInfoList(SourceDestinationInfo.Destination, hashType);
+
+                Console.WriteLine("Comparing file hashes...");
+                int recopyCtr = 0; int recopyLimit = 3;
+                HashTransferResult result = CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
+
+                if (result == HashTransferResult.match)
+                {
+                    Console.WriteLine("All file hashes matched. File Transfer completed successfully!");
+                    Environment.Exit(0);
+                }
+                else if (result == HashTransferResult.mismatch)
+                {
+                    Console.WriteLine("There are file hashes that did not match");
+                    Environment.Exit(0);
+                }
+                else 
+                {
+                    throw new Exception();
+                }
+        });
     }
 }
 
