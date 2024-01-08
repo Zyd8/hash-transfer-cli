@@ -11,3 +11,9 @@ public enum TransferMode
     copy,
     cut
 }
+
+public enum HashTransferResult
+{
+    match,
+    mismatch
+}
