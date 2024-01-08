@@ -16,22 +16,30 @@ class SourceDestinationInfo
     {
         get { return source; }
         set 
-        { 
-            if (File.Exists(value))
+        {   
+            try
             {
-                isSourceFile = true;
-                source = value; 
+                if (File.Exists(value))
+                {
+                    isSourceFile = true;
+                    source = value; 
+                }
+                else if (Directory.Exists(value))
+                {
+                    isSourceFile = false;
+                    source = value;
+                }
+                else 
+                {
+                    throw new Exception($"Source instance [{value}] is neither an existing file nor a directory.");
+                }
             }
-            else if (Directory.Exists(value))
+            catch (Exception e)
             {
-                isSourceFile = false;
-                source = value;
+                Console.WriteLine(e.Message);
+                Environment.Exit(1); 
             }
-            else 
-            {
-               Console.WriteLine($"SourceDestinationInfo.Source instance [{value}] is neither a file nor a directory.");
-               return;
-            }
+
         }
     }
 
@@ -40,16 +48,22 @@ class SourceDestinationInfo
         get { return destination; }
         set 
         { 
-            if (Directory.Exists(Path.GetDirectoryName(value)))
+            try
             {
-                destination = value; 
+                if (Directory.Exists(Path.GetDirectoryName(value)))
+                {
+                    destination = value; 
+                }
+                else 
+                {
+                    throw new DirectoryNotFoundException($"Destination instance [{value}] directory does not exist.");
+                }
             }
-            else 
+            catch (DirectoryNotFoundException e)
             {
-                Console.WriteLine($"SourceDestinationInfo.Destination instance [{value}] directory does not exist.");
-                return;
+                Console.WriteLine(e.Message);
+                Environment.Exit(1); 
             }
-           
         }
     }
     
