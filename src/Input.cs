@@ -1,5 +1,6 @@
-class Parser
+class Input
 {
+
     public static TransferMode ParseTransferMode(string value)
     {
         if (string.Equals(value, "copy", StringComparison.OrdinalIgnoreCase))

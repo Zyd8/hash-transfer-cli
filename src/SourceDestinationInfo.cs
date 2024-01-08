@@ -30,6 +30,7 @@ class SourceDestinationInfo
             else 
             {
                Console.WriteLine($"SourceDestinationInfo.Source instance [{value}] is neither a file nor a directory.");
+               return;
             }
         }
     }
@@ -46,6 +47,7 @@ class SourceDestinationInfo
             else 
             {
                 Console.WriteLine($"SourceDestinationInfo.Destination instance [{value}] directory does not exist.");
+                return;
             }
            
         }
