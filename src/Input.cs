@@ -15,7 +15,7 @@ class Input
             }
             else
             {
-                throw new ArgumentException("Invalid transfer operation chosen. Please enter either 'copy' or 'cut'.");
+                throw new ArgumentException("Invalid transfer operation chosen. Please enter either 'copy'(default) or 'cut'.");
             }
         }
         catch (ArgumentException e)
@@ -50,7 +50,7 @@ class Input
             }
             else
             {
-                throw new ArgumentException("Invalid hash algorithm.");
+                throw new ArgumentException("Invalid hash algorithm. Please enter either 'md5'(default), 'sha1', 'sha256' or 'sha512'");
             }
         }
         catch (ArgumentException e)
