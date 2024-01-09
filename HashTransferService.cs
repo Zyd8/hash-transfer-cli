@@ -69,6 +69,72 @@ class HashTransferService
         return fileInfoList;
     }
     
+    private static HashTransferResult CheckHashMismatch(List<FileInfo> sourceFileInfoList, List<FileInfo> destFileInfoList, SourceDestinationInfo SourceDestinationInfo, HashType hashType, int recopyCtr, int recopyLimit)
+    {
+        if (recopyCtr > recopyLimit)
+        {
+            Console.WriteLine("Some file(s) seems to be continuously modified that hashes can't be matched");
+            return HashTransferResult.mismatch;
+        }
+
+        var mismatchFilePairs = SourceDestination.FindHashMismatch(sourceFileInfoList, destFileInfoList);
+
+        if (SourceDestinationInfo.TransferMode == TransferMode.copy && mismatchFilePairs.Count != 0)
+        {
+            Console.WriteLine("There are file hashes that did not match");
+            Console.WriteLine($"Attempting to recopy mismatched files...{recopyCtr += 1}");
+            SourceDestination.FileRecover(mismatchFilePairs);
+            // Only refreshes file info of mismatch source and destination file hashes
+            sourceFileInfoList = UpdateSourceInfoList(mismatchFilePairs, sourceFileInfoList, hashType);
+            destFileInfoList = UpdateDestinationInfoList(mismatchFilePairs, destFileInfoList, hashType);
+            // Recursive
+            return CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
+        }
+        else if (SourceDestinationInfo.TransferMode == TransferMode.cut && mismatchFilePairs.Count != 0)
+        {
+            return HashTransferResult.mismatch;
+        }
+        else
+        {
+            return HashTransferResult.match;
+        }
+    }
+
+    private static List<FileInfo> UpdateSourceInfoList(List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> mismatchFilePairs, List<FileInfo> sourceFileInfoList, HashType hashType)
+    {
+        foreach (var pair in mismatchFilePairs)
+        {
+            int mismatchKey = pair.SourceFileInfo.Key;
+
+            FileInfo sourceFileInfoToUpdate = sourceFileInfoList.Find(info => info.Key == mismatchKey)!;
+
+            if (sourceFileInfoToUpdate != null)
+            {
+                sourceFileInfoToUpdate.HashValue = Hasher.GetFileHash(sourceFileInfoToUpdate.FilePath, hashType);
+            }
+        }
+
+        return sourceFileInfoList;
+    }
+
+    private static List<FileInfo> UpdateDestinationInfoList(List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> mismatchFilePairs, List<FileInfo> destFileInfoList, HashType hashType)
+    {
+        foreach (var pair in mismatchFilePairs)
+        {
+            int mismatchKey = pair.DestFileInfo.Key;
+
+            FileInfo destFileInfoToUpdate = destFileInfoList.Find(info => info.Key == mismatchKey)!;
+
+            if (destFileInfoToUpdate != null)
+            {
+                destFileInfoToUpdate.HashValue = Hasher.GetFileHash(destFileInfoToUpdate.FilePath, hashType);
+            }
+        }
+
+        return destFileInfoList;
+    }
+
+
     public class Options
     {
         [Option('m', "mode", Required = false, Default = "copy", HelpText = "Transfer mode")]
@@ -84,42 +150,12 @@ class HashTransferService
         public required string InputDestinationPath {get; set;}
     }
 
-    private static HashTransferResult CheckHashMismatch(List<FileInfo> sourceFileInfoList, List<FileInfo> destFileInfoList, SourceDestinationInfo SourceDestinationInfo, HashType hashType, int recopyCtr, int recopyLimit)
-    {
-        if (recopyCtr >= recopyLimit)
-        {
-            Console.WriteLine("Some file(s) seems to be continuously modified that hashes can't be matched");
-            return HashTransferResult.mismatch;
-        }
-
-        var mismatchFileInfoList = SourceDestination.FindHashMismatch(sourceFileInfoList, destFileInfoList);
-
-        if (SourceDestinationInfo.TransferMode == TransferMode.copy && mismatchFileInfoList.Count != 0)
-        {
-            Console.WriteLine("There are file hashes that did not match");
-            Console.WriteLine($"Attempting to recopy mismatched files...{recopyCtr += 1}");
-            SourceDestination.FileRecover(mismatchFileInfoList, destFileInfoList);
-            sourceFileInfoList = GetFileInfoList(SourceDestinationInfo.Source, hashType);
-            destFileInfoList = GetFileInfoList(SourceDestinationInfo.Destination, hashType);
-            // Recursive
-            return CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
-        }
-        else if (SourceDestinationInfo.TransferMode == TransferMode.cut && mismatchFileInfoList.Count != 0)
-        {
-            return HashTransferResult.mismatch;
-        }
-        else
-        {
-            return HashTransferResult.match;
-        }
-    }
 
     static void Main(string[] args)
     {
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(options =>
         {
-
                 string currentDirectory = Directory.GetCurrentDirectory();
 
                 string fullSourcePath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputSourcePath)));
@@ -142,7 +178,7 @@ class HashTransferService
                 List<FileInfo> destFileInfoList = GetFileInfoList(SourceDestinationInfo.Destination, hashType);
 
                 Console.WriteLine("Comparing file hashes...");
-                int recopyCtr = 0; int recopyLimit = 3;
+                int recopyCtr = 0; int recopyLimit = 10;
                 HashTransferResult result = CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
 
                 if (result == HashTransferResult.match)

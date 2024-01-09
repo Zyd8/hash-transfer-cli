@@ -1,8 +1,10 @@
 class SourceDestination
 {
-    public static List<FileInfo> FindHashMismatch(List<FileInfo> sourceFileInfoList, List<FileInfo> destFileInfoList)
+    public static List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> FindHashMismatch(
+        List<FileInfo> sourceFileInfoList, List<FileInfo> destFileInfoList)
     {
-        List<FileInfo> mismatchFileInfoList = new List<FileInfo>();
+        List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> mismatchFilePairs = 
+            new List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)>();
 
         for (int i = 0; i < sourceFileInfoList.Count; i++)
         {
@@ -10,20 +12,20 @@ class SourceDestination
             {
                 if (sourceFileInfoList[i].Key == destFileInfoList[j].Key)
                 {
-                    if (sourceFileInfoList[i].HashValue == destFileInfoList[j].HashValue)
+                    if (sourceFileInfoList[i].HashValue != destFileInfoList[j].HashValue)
                     {
-                        Console.WriteLine($"[MATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfoList[i].FilePath))}/{Path.GetFileName(sourceFileInfoList[i].FilePath)} : {sourceFileInfoList[i].HashValue} --> {destFileInfoList[j].HashValue}");
+                        Console.WriteLine($"[MISMATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfoList[i].FilePath))}/{Path.GetFileName(sourceFileInfoList[i].FilePath)} : {sourceFileInfoList[i].HashValue} --> {destFileInfoList[j].HashValue}");
+                        mismatchFilePairs.Add((sourceFileInfoList[i], destFileInfoList[j]));
                     }
                     else
                     {
-                        Console.WriteLine($"[MISMATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfoList[i].FilePath))}/{Path.GetFileName(sourceFileInfoList[i].FilePath)} : {sourceFileInfoList[i].HashValue} --> {destFileInfoList[j].HashValue}");
-                        mismatchFileInfoList.Add(sourceFileInfoList[i]);
+                        Console.WriteLine($"[MATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfoList[i].FilePath))}/{Path.GetFileName(sourceFileInfoList[i].FilePath)} : {sourceFileInfoList[i].HashValue} --> {destFileInfoList[j].HashValue}");
                     }
                 }
             }
         }
 
-        return mismatchFileInfoList;
+        return mismatchFilePairs;
     }
 
     public static void CopyDirectory(string sourceDir, string destDir)
@@ -65,18 +67,11 @@ class SourceDestination
         return filePaths;
     }
 
-    public static void FileRecover(List<FileInfo> mismatchFileInfoList, List<FileInfo> destFileInfoList)
+    public static void FileRecover(List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> mismatchFilePairs)
     {
-        for (int i = 0; i < mismatchFileInfoList.Count; i++)
+        foreach (var mismatchPair in mismatchFilePairs)
         {
-            for (int j = 0; j < destFileInfoList.Count; j++)
-            {
-                if (mismatchFileInfoList[i].Key == destFileInfoList[j].Key)
-                {
-                    File.Copy(mismatchFileInfoList[i].FilePath, destFileInfoList[j].FilePath, true);
-                }
-            }
+            File.Copy(mismatchPair.SourceFileInfo.FilePath, mismatchPair.DestFileInfo.FilePath, true);
         }
     }
-
 }
