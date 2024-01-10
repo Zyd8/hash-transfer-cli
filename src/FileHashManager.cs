@@ -18,23 +18,22 @@ class FileHashManager
     {
         if (mismatchHashInfoPair.Count == 0)
         {
-            for (int i = 0; i < sourceInfo.Count; i++)
-            {
-                for (int j = 0; j < destinationInfo.Count; j++)
-                {
-                    if (sourceInfo[i].Key == destinationInfo[j].Key)
-                    {
-                        if (sourceInfo[i].HashValue != destinationInfo[j].HashValue)
-                        {
-                            Console.WriteLine($"[MISMATCH] {Path.GetFileName(Path.GetDirectoryName(sourceInfo[i].FilePath))}/{Path.GetFileName(sourceInfo[i].FilePath)} : {sourceInfo[i].HashValue} --> {destinationInfo[j].HashValue}");
-                            mismatchHashInfoPair.Add((sourceInfo[i], destinationInfo[j]));
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[MATCH] {Path.GetFileName(Path.GetDirectoryName(sourceInfo[i].FilePath))}/{Path.GetFileName(sourceInfo[i].FilePath)} : {sourceInfo[i].HashValue} --> {destinationInfo[j].HashValue}");
-                        }
-                    }
+            var sourceDictionary = sourceInfo.ToDictionary(info => info.Key);
+            var destinationDictionary = destinationInfo.ToDictionary(info => info.Key);
 
+            foreach (var key in sourceDictionary.Keys.Intersect(destinationDictionary.Keys))
+            {
+                var sourceFileInfo = sourceDictionary[key];
+                var destinationFileInfo = destinationDictionary[key];
+
+                if (sourceFileInfo.HashValue != destinationFileInfo.HashValue)
+                {
+                    Console.WriteLine($"[MISMATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfo.FilePath))}/{Path.GetFileName(sourceFileInfo.FilePath)}:\n{sourceFileInfo.HashValue}\n-->\n{destinationFileInfo.HashValue}");
+                    mismatchHashInfoPair.Add((sourceFileInfo, destinationFileInfo));
+                }
+                else
+                {
+                    Console.WriteLine($"[MATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfo.FilePath))}/{Path.GetFileName(sourceFileInfo.FilePath)}:\n{sourceFileInfo.HashValue}\n-->\n{destinationFileInfo.HashValue}");
                 }
             }
         }
@@ -46,12 +45,12 @@ class FileHashManager
             {
                 if (pair.sourceInfo.HashValue != pair.destinationInfo.HashValue)
                 {
-                    Console.WriteLine($"[RECHECK MISMATCH] {Path.GetFileName(Path.GetDirectoryName(pair.sourceInfo.FilePath))}/{Path.GetFileName(pair.sourceInfo.FilePath)} : {pair.sourceInfo.HashValue} --> {pair.destinationInfo.HashValue}");
+                    Console.WriteLine($"[RECHECK MISMATCH] {Path.GetFileName(Path.GetDirectoryName(pair.sourceInfo.FilePath))}/{Path.GetFileName(pair.sourceInfo.FilePath)}:\n{pair.sourceInfo.HashValue}\n-->\n{pair.destinationInfo.HashValue}");
                     updatedMismathHashInfoPairs.Add((pair.sourceInfo, pair.destinationInfo));
                 }
                 else
                 {
-                    Console.WriteLine($"[RECHECK MATCH] {Path.GetFileName(Path.GetDirectoryName(pair.sourceInfo.FilePath))}/{Path.GetFileName(pair.sourceInfo.FilePath)} : {pair.sourceInfo.HashValue} --> {pair.destinationInfo.HashValue}");
+                    Console.WriteLine($"[RECHECK MATCH] {Path.GetFileName(Path.GetDirectoryName(pair.sourceInfo.FilePath))}/{Path.GetFileName(pair.sourceInfo.FilePath)}:\n{pair.sourceInfo.HashValue}\n-->\n{pair.destinationInfo.HashValue}");
                 }
             }
 
@@ -85,7 +84,7 @@ class FileHashManager
             sourceInfo = fileInfoList;
         }
 
-        List<string> filePaths = TransferManager.TraverseDirectories(sourcePath);
+        List<string> filePaths = TransferUtils.TraverseDirectories(sourcePath);
 
         foreach (var path in filePaths)
         {
@@ -119,7 +118,7 @@ class FileHashManager
             destinationInfo = fileInfoList;
         }
 
-        List<string> filePaths = TransferManager.TraverseDirectories(destinationPath);
+        List<string> filePaths = TransferUtils.TraverseDirectories(destinationPath);
 
         foreach (var path in filePaths)
         {

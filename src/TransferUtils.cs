@@ -1,4 +1,4 @@
-class TransferManager
+class TransferUtils
 {
     public static void CopyDirectory(string sourceDir, string destDir)
     {
@@ -37,5 +37,35 @@ class TransferManager
         }
 
         return filePaths;
+    }
+
+    public static void DoTransferOperation(TransferInfo TransferInfo)
+    {
+        TransferMode transferMode = TransferInfo.TransferMode;
+        if (transferMode == TransferMode.copy)
+        {
+            if (!TransferInfo.IsSourceFile)
+            {
+                CopyDirectory(TransferInfo.Source, TransferInfo.Destination);
+                return;
+            }
+            File.Copy(TransferInfo.Source, TransferInfo.Destination, true);
+            return;
+
+        }
+        else if (transferMode == TransferMode.cut)
+        {
+            if (!TransferInfo.IsSourceFile)
+            {
+                Directory.Move(TransferInfo.Source, TransferInfo.Destination);
+                return;
+            }
+            File.Move(TransferInfo.Source, TransferInfo.Destination);
+            return;
+        }
+        else
+        {
+            throw new ArgumentException();
+        }
     }
 }

@@ -3,38 +3,6 @@ using CommandLine;
 
 class HashTransferService
 {
-    private static void DoTransferOperation(TransferInfo TransferInfo)
-    {
-        TransferMode transferMode = TransferInfo.TransferMode;
-        if (transferMode == TransferMode.copy)
-        {
-            if (!TransferInfo.IsSourceFile)
-            {
-                TransferManager.CopyDirectory(TransferInfo.Source, TransferInfo.Destination);
-                return;
-            }
-            File.Copy(TransferInfo.Source, TransferInfo.Destination, true);
-            return;
-
-        }
-        else if (transferMode == TransferMode.cut)
-        {
-            if (!TransferInfo.IsSourceFile)
-            {
-                Directory.Move(TransferInfo.Source, TransferInfo.Destination);
-                return;
-            }
-            File.Move(TransferInfo.Source, TransferInfo.Destination);
-            return;
-
-        }
-        else
-        {
-            throw new ArgumentException();
-        }
-
-    }
-
     private static HashTransferResult CheckHashMismatch(FileHashManager fileHashManager, TransferInfo TransferInfo, HashType hashType, int recopyCtr, int recopyLimit)
     {
         if (recopyCtr > recopyLimit)
@@ -57,6 +25,7 @@ class HashTransferService
         }
         else if (TransferInfo.TransferMode == TransferMode.cut && fileHashManager.mismatchHashInfoPair.Count != 0)
         {
+            // MismatchHashResolver would not work with 'cut' transfer mode
             return HashTransferResult.mismatch;
         }
         else
@@ -103,7 +72,7 @@ class HashTransferService
                 fileHashManager.GetSourceInfoList(TransferInfo.Source, hashType);
 
                 Console.WriteLine("Transferring files...");
-                DoTransferOperation(TransferInfo);
+                TransferUtils.DoTransferOperation(TransferInfo);
 
                 Console.WriteLine("Fetching destination file hashes...");
                 fileHashManager.GetDestinationInfoList(TransferInfo.Destination, hashType);
