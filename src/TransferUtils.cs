@@ -55,13 +55,21 @@ class TransferUtils
         }
         else if (transferMode == TransferMode.cut)
         {
-            if (!TransferInfo.IsSourceFile)
+            try
             {
-                Directory.Move(TransferInfo.Source, TransferInfo.Destination);
+                if (!TransferInfo.IsSourceFile)
+                {
+                    Directory.Move(TransferInfo.Source, TransferInfo.Destination);
+                    return;
+                }
+                File.Move(TransferInfo.Source, TransferInfo.Destination);
                 return;
             }
-            File.Move(TransferInfo.Source, TransferInfo.Destination);
-            return;
+            catch (IOException e)
+            {
+                Console.WriteLine(e.Message);
+                Environment.Exit(1);
+            }
         }
         else
         {
