@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-class Hasher
+class Hash
 {
     public static string GetFileHash(string path, HashType hashType)
     {

@@ -1,11 +1,11 @@
-class SourceDestinationInfo
+class TransferInfo
 {
     private string source = "";
     private bool isSourceFile;
     private string destination = "";
     private TransferMode transferMode;
 
-    public SourceDestinationInfo(string source, string destination, TransferMode transferMode)
+    public TransferInfo(string source, string destination, TransferMode transferMode)
     {
         Source = source;
         Destination = destination;
@@ -82,17 +82,6 @@ class SourceDestinationInfo
         set
         {
             transferMode = value;
-        }
-    }
-
-    private static void Display(List<FileInfo> fileInfoList)
-    {
-        foreach (FileInfo fileInfo in fileInfoList)
-        {
-            Console.WriteLine($"File Info:");
-            Console.WriteLine($"  Key: {fileInfo.Key}");
-            Console.WriteLine($"  File Path: {fileInfo.FilePath}");
-            Console.WriteLine($"  Hash Value: {fileInfo.HashValue}");
         }
     }
 }

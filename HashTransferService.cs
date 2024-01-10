@@ -3,28 +3,28 @@ using CommandLine;
 
 class HashTransferService
 {
-    private static void DoTransferOperation(SourceDestinationInfo SourceDestinationInfo)
+    private static void DoTransferOperation(TransferInfo TransferInfo)
     {
-        TransferMode transferMode = SourceDestinationInfo.TransferMode;
+        TransferMode transferMode = TransferInfo.TransferMode;
         if (transferMode == TransferMode.copy)
         {
-            if (!SourceDestinationInfo.IsSourceFile)
+            if (!TransferInfo.IsSourceFile)
             {
-                SourceDestination.CopyDirectory(SourceDestinationInfo.Source, SourceDestinationInfo.Destination);
+                TransferManager.CopyDirectory(TransferInfo.Source, TransferInfo.Destination);
                 return;
             }
-            File.Copy(SourceDestinationInfo.Source, SourceDestinationInfo.Destination, true);
+            File.Copy(TransferInfo.Source, TransferInfo.Destination, true);
             return;
 
         }
         else if (transferMode == TransferMode.cut)
         {
-            if (!SourceDestinationInfo.IsSourceFile)
+            if (!TransferInfo.IsSourceFile)
             {
-                Directory.Move(SourceDestinationInfo.Source, SourceDestinationInfo.Destination);
+                Directory.Move(TransferInfo.Source, TransferInfo.Destination);
                 return;
             }
-            File.Move(SourceDestinationInfo.Source, SourceDestinationInfo.Destination);
+            File.Move(TransferInfo.Source, TransferInfo.Destination);
             return;
 
         }
@@ -35,41 +35,7 @@ class HashTransferService
 
     }
 
-    private static List<FileInfo> GetFileInfoList(string directoryPath, HashType hashType)
-    {
-        List<FileInfo> fileInfoList = new List<FileInfo>();
-        int fileInfoCtr = 0;
-
-        if (!Directory.Exists(directoryPath))
-        {
-            FileInfo fileInfoObj = new FileInfo(directoryPath, fileInfoCtr += 1);
-            fileInfoList.Add(fileInfoObj);
-
-            foreach (FileInfo fileInfo in fileInfoList)
-            {
-                fileInfo.HashValue = Hasher.GetFileHash(fileInfo.FilePath, hashType);
-            }
-
-            return fileInfoList;
-        }
-
-        List<string> filePaths = SourceDestination.TraverseDirectories(directoryPath);
-
-        foreach (var path in filePaths)
-        {
-            FileInfo fileInfoObj = new FileInfo(path, fileInfoCtr += 1);
-            fileInfoList.Add(fileInfoObj);
-        }
-
-        foreach (FileInfo fileInfo in fileInfoList)
-        {
-            fileInfo.HashValue = Hasher.GetFileHash(fileInfo.FilePath, hashType);
-        }
-
-        return fileInfoList;
-    }
-    
-    private static HashTransferResult CheckHashMismatch(List<FileInfo> sourceFileInfoList, List<FileInfo> destFileInfoList, SourceDestinationInfo SourceDestinationInfo, HashType hashType, int recopyCtr, int recopyLimit)
+    private static HashTransferResult CheckHashMismatch(FileHashManager fileHashManager, TransferInfo TransferInfo, HashType hashType, int recopyCtr, int recopyLimit)
     {
         if (recopyCtr > recopyLimit)
         {
@@ -77,20 +43,19 @@ class HashTransferService
             return HashTransferResult.mismatch;
         }
 
-        var mismatchFilePairs = SourceDestination.FindHashMismatch(sourceFileInfoList, destFileInfoList);
+        fileHashManager.FindHashMismatch();
 
-        if (SourceDestinationInfo.TransferMode == TransferMode.copy && mismatchFilePairs.Count != 0)
+        if (TransferInfo.TransferMode == TransferMode.copy && fileHashManager.mismatchHashInfoPair.Count != 0)
         {
             Console.WriteLine("There are file hashes that did not match");
             Console.WriteLine($"Attempting to recopy mismatched files...{recopyCtr += 1}");
-            SourceDestination.FileRecover(mismatchFilePairs);
+            fileHashManager.MismatchHashResolver();
             // Only refreshes file info of mismatch source and destination file hashes
-            sourceFileInfoList = UpdateSourceInfoList(mismatchFilePairs, sourceFileInfoList, hashType);
-            destFileInfoList = UpdateDestinationInfoList(mismatchFilePairs, destFileInfoList, hashType);
+            fileHashManager.UpdateHashInfoList(hashType);
             // Recursive
-            return CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
+            return CheckHashMismatch(fileHashManager, TransferInfo, hashType, recopyCtr, recopyLimit);
         }
-        else if (SourceDestinationInfo.TransferMode == TransferMode.cut && mismatchFilePairs.Count != 0)
+        else if (TransferInfo.TransferMode == TransferMode.cut && fileHashManager.mismatchHashInfoPair.Count != 0)
         {
             return HashTransferResult.mismatch;
         }
@@ -99,41 +64,6 @@ class HashTransferService
             return HashTransferResult.match;
         }
     }
-
-    private static List<FileInfo> UpdateSourceInfoList(List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> mismatchFilePairs, List<FileInfo> sourceFileInfoList, HashType hashType)
-    {
-        foreach (var pair in mismatchFilePairs)
-        {
-            int mismatchKey = pair.SourceFileInfo.Key;
-
-            FileInfo sourceFileInfoToUpdate = sourceFileInfoList.Find(info => info.Key == mismatchKey)!;
-
-            if (sourceFileInfoToUpdate != null)
-            {
-                sourceFileInfoToUpdate.HashValue = Hasher.GetFileHash(sourceFileInfoToUpdate.FilePath, hashType);
-            }
-        }
-
-        return sourceFileInfoList;
-    }
-
-    private static List<FileInfo> UpdateDestinationInfoList(List<(FileInfo SourceFileInfo, FileInfo DestFileInfo)> mismatchFilePairs, List<FileInfo> destFileInfoList, HashType hashType)
-    {
-        foreach (var pair in mismatchFilePairs)
-        {
-            int mismatchKey = pair.DestFileInfo.Key;
-
-            FileInfo destFileInfoToUpdate = destFileInfoList.Find(info => info.Key == mismatchKey)!;
-
-            if (destFileInfoToUpdate != null)
-            {
-                destFileInfoToUpdate.HashValue = Hasher.GetFileHash(destFileInfoToUpdate.FilePath, hashType);
-            }
-        }
-
-        return destFileInfoList;
-    }
-
 
     public class Options
     {
@@ -150,7 +80,6 @@ class HashTransferService
         public required string InputDestinationPath {get; set;}
     }
 
-
     static void Main(string[] args)
     {
         Parser.Default.ParseArguments<Options>(args)
@@ -166,20 +95,23 @@ class HashTransferService
 
                 HashType hashType = Input.ParseHashType(options.InputHashType);
 
-                SourceDestinationInfo SourceDestinationInfo = new(fullSourcePath, fullDestPath, transferMode);
+                TransferInfo TransferInfo = new(fullSourcePath, fullDestPath, transferMode);
+
+                FileHashManager fileHashManager = new();
 
                 Console.WriteLine("Fetching source file hashes...");
-                List<FileInfo> sourceFileInfoList = GetFileInfoList(SourceDestinationInfo.Source, hashType);
+                fileHashManager.GetSourceInfoList(TransferInfo.Source, hashType);
 
                 Console.WriteLine("Transferring files...");
-                DoTransferOperation(SourceDestinationInfo);
+                DoTransferOperation(TransferInfo);
 
                 Console.WriteLine("Fetching destination file hashes...");
-                List<FileInfo> destFileInfoList = GetFileInfoList(SourceDestinationInfo.Destination, hashType);
+                fileHashManager.GetDestinationInfoList(TransferInfo.Destination, hashType);
 
                 Console.WriteLine("Comparing file hashes...");
-                int recopyCtr = 0; int recopyLimit = 10;
-                HashTransferResult result = CheckHashMismatch(sourceFileInfoList, destFileInfoList, SourceDestinationInfo, hashType, recopyCtr, recopyLimit);
+                int recopyCtr = 0; int recopyLimit = 30;
+
+                HashTransferResult result = CheckHashMismatch(fileHashManager, TransferInfo, hashType, recopyCtr, recopyLimit);
 
                 if (result == HashTransferResult.match)
                 {
