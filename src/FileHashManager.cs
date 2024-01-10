@@ -73,6 +73,7 @@ class FileHashManager
 
         if (!Directory.Exists(sourcePath))
         {
+
             FileInfo fileInfoObj = new FileInfo(sourcePath, fileInfoCtr += 1);
             fileInfoList.Add(fileInfoObj);
 
@@ -82,6 +83,7 @@ class FileHashManager
             }
 
             sourceInfo = fileInfoList;
+            return;
         }
 
         List<string> filePaths = TransferUtils.TraverseDirectories(sourcePath);
@@ -116,6 +118,7 @@ class FileHashManager
             }
 
             destinationInfo = fileInfoList;
+            return;
         }
 
         List<string> filePaths = TransferUtils.TraverseDirectories(destinationPath);
@@ -141,16 +144,16 @@ class FileHashManager
             int mismatchSourceKey = pair.sourceInfo.Key;
             int mismatchDestinationKey = pair.destinationInfo.Key;
 
-            FileInfo sourceHashInfoToUpdate = sourceInfo.Find(info => info.Key == mismatchSourceKey)!;
-            FileInfo destinationHashInfoToUpdate = destinationInfo.Find(info => info.Key == mismatchDestinationKey)!;
+            FileInfo sourceHashInfoInstance = sourceInfo.Find(info => info.Key == mismatchSourceKey)!;
+            FileInfo destinationHashInfoInstance = destinationInfo.Find(info => info.Key == mismatchDestinationKey)!;
 
-            if (sourceHashInfoToUpdate != null)
+            if (sourceHashInfoInstance != null)
             {
-                sourceHashInfoToUpdate.HashValue = Hash.GetFileHash(sourceHashInfoToUpdate.FilePath, hashType);
+                sourceHashInfoInstance.HashValue = Hash.GetFileHash(sourceHashInfoInstance.FilePath, hashType);
             }
-            if (destinationHashInfoToUpdate != null)
+            if (destinationHashInfoInstance != null)
             {
-                destinationHashInfoToUpdate.HashValue = Hash.GetFileHash(destinationHashInfoToUpdate.FilePath, hashType);
+                destinationHashInfoInstance.HashValue = Hash.GetFileHash(destinationHashInfoInstance.FilePath, hashType);
             }
         }
     }
