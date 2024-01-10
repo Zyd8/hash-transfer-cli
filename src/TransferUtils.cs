@@ -1,23 +1,23 @@
 class TransferUtils
 {
-    public static void CopyDirectory(string sourceDir, string destDir)
+    public static void CopyDirectory(string sourcePath, string destinationPath)
     {
-        if (!Directory.Exists(destDir))
+        if (!Directory.Exists(destinationPath))
         {
-            Directory.CreateDirectory(destDir);
+            Directory.CreateDirectory(destinationPath);
         }
 
-        foreach (string filePath in Directory.GetFiles(sourceDir))
+        foreach (string filePath in Directory.GetFiles(sourcePath))
         {
             string fileName = Path.GetFileName(filePath);
-            string destPath = Path.Combine(destDir, fileName);
+            string destPath = Path.Combine(destinationPath, fileName);
             File.Copy(filePath, destPath, true);
         }
 
-        foreach (string subDirPath in Directory.GetDirectories(sourceDir))
+        foreach (string subDirPath in Directory.GetDirectories(sourcePath))
         {
             string subDirName = Path.GetFileName(subDirPath);
-            string destSubDir = Path.Combine(destDir, subDirName);
+            string destSubDir = Path.Combine(destinationPath, subDirName);
             CopyDirectory(subDirPath, destSubDir);
         }
     }
@@ -41,39 +41,17 @@ class TransferUtils
 
     public static void DoTransferOperation(TransferInfo TransferInfo)
     {
-        TransferMode transferMode = TransferInfo.TransferMode;
-        if (transferMode == TransferMode.copy)
+        if (!TransferInfo.IsSourceFile)
         {
-            if (!TransferInfo.IsSourceFile)
-            {
-                CopyDirectory(TransferInfo.Source, TransferInfo.Destination);
-                return;
-            }
-            File.Copy(TransferInfo.Source, TransferInfo.Destination, true);
+            CopyDirectory(TransferInfo.Source, TransferInfo.Destination);
             return;
+        }
+        File.Copy(TransferInfo.Source, TransferInfo.Destination, true);
+        return;
+    }
 
-        }
-        else if (transferMode == TransferMode.cut)
-        {
-            try
-            {
-                if (!TransferInfo.IsSourceFile)
-                {
-                    Directory.Move(TransferInfo.Source, TransferInfo.Destination);
-                    return;
-                }
-                File.Move(TransferInfo.Source, TransferInfo.Destination);
-                return;
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message);
-                Environment.Exit(1);
-            }
-        }
-        else
-        {
-            throw new ArgumentException();
-        }
+    public static void RemoveDirectory(string directoryPath)
+    {
+        Directory.Delete(directoryPath, true);
     }
 }
