@@ -84,13 +84,11 @@ class HashTransferService
 
                 if (result == HashTransferResult.match)
                 {
-                    Console.WriteLine("All file hashes matched. File Transfer completed successfully!");
-                    Environment.Exit(0);
+                    Console.WriteLine("All file hashes matched. File Transfer completed successfully!");  
                 }
                 else if (result == HashTransferResult.mismatch)
                 {
                     Console.WriteLine("There are file hashes that did not match");
-                    Environment.Exit(0);
                 }
                 else 
                 {
