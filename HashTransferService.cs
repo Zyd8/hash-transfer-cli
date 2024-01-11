@@ -48,17 +48,31 @@ class HashTransferService
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(options =>
         {
-                string currentDirectory = Directory.GetCurrentDirectory();
+                string fullSourcePath;
+                if (Path.IsPathRooted(options.InputSourcePath))
+                {
+                    fullSourcePath = options.InputSourcePath;
+                }
+                else
+                {
+                    fullSourcePath = Path.GetFullPath(options.InputSourcePath);
+                }
 
-                string fullSourcePath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputSourcePath)));
-
-                string fullDestPath = Path.GetFullPath(Path.Combine(currentDirectory, Input.ParseLeadingSlash(options.InputDestinationPath), Path.GetFileName(options.InputSourcePath)));
-
+                string fullDestinationPath;
+                if (Path.IsPathRooted(options.InputDestinationPath))
+                {
+                    fullDestinationPath = Path.Combine(options.InputDestinationPath, Path.GetFileName(options.InputSourcePath));
+                }
+                else
+                {
+                    fullDestinationPath = Path.Combine(Path.GetFullPath(options.InputDestinationPath), Path.GetFileName(options.InputSourcePath));
+                }
+               
                 TransferMode transferMode = Input.ParseTransferMode(options.InputTransferMode);
 
                 HashType hashType = Input.ParseHashType(options.InputHashType);
 
-                TransferInfo transferInfo = new(fullSourcePath, fullDestPath, transferMode);
+                TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode);
 
                 FileHashManager fileHashManager = new();
 
