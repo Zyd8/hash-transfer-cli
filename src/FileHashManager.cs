@@ -3,23 +3,42 @@ using System.Net.NetworkInformation;
 
 class FileHashManager
 {
-    public List<FileInfo> sourceInfo;
-    public List<FileInfo> destinationInfo;
-    public List<(FileInfo sourceInfo, FileInfo destinationInfo)> mismatchHashInfoPair;
+    private List<FileInfo> _sourceInfo;
+    private List<FileInfo> _destinationInfo;
+    private List<(FileInfo sourceInfo, FileInfo destinationInfo)> _mismatchHashInfoPair;
+
+    public List<FileInfo> SourceInfo
+    {
+        get { return _sourceInfo; }
+        set { _sourceInfo = value; }
+    }
+
+    public List<FileInfo> DestinationInfo
+    {
+        get { return _destinationInfo; }
+        set { _destinationInfo = value; }
+    }
+
+    public List<(FileInfo sourceInfo, FileInfo destinationInfo)> MismatchHashInfoPair
+    {
+        get { return _mismatchHashInfoPair; }
+        set { _mismatchHashInfoPair = value; }
+    }
 
     public FileHashManager()
     {
-        sourceInfo = new List<FileInfo>();
-        destinationInfo = new List<FileInfo>();
-        mismatchHashInfoPair = new List<(FileInfo, FileInfo)>();
-    } 
+        _sourceInfo = new List<FileInfo>();
+        _destinationInfo = new List<FileInfo>();
+        _mismatchHashInfoPair = new List<(FileInfo, FileInfo)>();
+    }
+
 
     public void FindHashMismatch()
     {
-        if (mismatchHashInfoPair.Count == 0)
+        if (MismatchHashInfoPair.Count == 0)
         {
-            var sourceDictionary = sourceInfo.ToDictionary(info => info.Key);
-            var destinationDictionary = destinationInfo.ToDictionary(info => info.Key);
+            var sourceDictionary = SourceInfo.ToDictionary(info => info.Key);
+            var destinationDictionary = DestinationInfo.ToDictionary(info => info.Key);
 
             foreach (var key in sourceDictionary.Keys.Intersect(destinationDictionary.Keys))
             {
@@ -29,7 +48,7 @@ class FileHashManager
                 if (sourceFileInfo.HashValue != destinationFileInfo.HashValue)
                 {
                     Console.WriteLine($"[MISMATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfo.FilePath))}/{Path.GetFileName(sourceFileInfo.FilePath)}:\n{sourceFileInfo.HashValue}\n-->\n{destinationFileInfo.HashValue}");
-                    mismatchHashInfoPair.Add((sourceFileInfo, destinationFileInfo));
+                    MismatchHashInfoPair.Add((sourceFileInfo, destinationFileInfo));
                 }
                 else
                 {
@@ -41,7 +60,7 @@ class FileHashManager
         {
             List<(FileInfo sourceInfo, FileInfo destinationInfo)> updatedMismathHashInfoPairs = new List<(FileInfo, FileInfo)>();
 
-            foreach (var pair in mismatchHashInfoPair)
+            foreach (var pair in MismatchHashInfoPair)
             {
                 if (pair.sourceInfo.HashValue != pair.destinationInfo.HashValue)
                 {
@@ -54,13 +73,13 @@ class FileHashManager
                 }
             }
 
-            mismatchHashInfoPair = updatedMismathHashInfoPairs;
+            MismatchHashInfoPair = updatedMismathHashInfoPairs;
         }
     }
 
     public void MismatchHashResolver()
     {
-        foreach (var pair in mismatchHashInfoPair)
+        foreach (var pair in MismatchHashInfoPair)
         {
             File.Copy(pair.sourceInfo.FilePath, pair.destinationInfo.FilePath, true);
         }
@@ -82,7 +101,7 @@ class FileHashManager
                 fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
             }
 
-            sourceInfo = fileInfoList;
+            SourceInfo = fileInfoList;
             return;
         }
 
@@ -99,7 +118,7 @@ class FileHashManager
             fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
         }
 
-        sourceInfo = fileInfoList;
+        SourceInfo = fileInfoList;
     }
 
     public void GetDestinationInfoList(string destinationPath, HashType hashType)
@@ -117,7 +136,7 @@ class FileHashManager
                 fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
             }
 
-            destinationInfo = fileInfoList;
+            DestinationInfo = fileInfoList;
             return;
         }
 
@@ -134,18 +153,18 @@ class FileHashManager
             fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
         }
 
-        destinationInfo = fileInfoList;
+        DestinationInfo = fileInfoList;
     }
 
     public void UpdateHashInfoList(HashType hashType)
     {
-        foreach (var pair in mismatchHashInfoPair)
+        foreach (var pair in MismatchHashInfoPair)
         {
             int mismatchSourceKey = pair.sourceInfo.Key;
             int mismatchDestinationKey = pair.destinationInfo.Key;
 
-            FileInfo sourceHashInfoInstance = sourceInfo.Find(info => info.Key == mismatchSourceKey)!;
-            FileInfo destinationHashInfoInstance = destinationInfo.Find(info => info.Key == mismatchDestinationKey)!;
+            FileInfo sourceHashInfoInstance = SourceInfo.Find(info => info.Key == mismatchSourceKey)!;
+            FileInfo destinationHashInfoInstance = DestinationInfo.Find(info => info.Key == mismatchDestinationKey)!;
 
             if (sourceHashInfoInstance != null)
             {

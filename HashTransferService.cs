@@ -13,7 +13,7 @@ class HashTransferService
 
         fileHashManager.FindHashMismatch();
 
-        if (fileHashManager.mismatchHashInfoPair.Count != 0)
+        if (fileHashManager.MismatchHashInfoPair.Count != 0)
         {
             Console.WriteLine("There are file hashes that did not match");
             Console.WriteLine($"Attempting to recopy mismatched files...{recopyCtr += 1}");
