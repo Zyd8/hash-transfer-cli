@@ -43,8 +43,20 @@ class HashTransferService
         public required string InputDestinationPath {get; set;}
     }
 
+    protected static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args, TransferInfo transferInfo)
+    {
+        Console.WriteLine("Application is called for termination...");
+        Console.WriteLine("Reverting changes...");
+        if (transferInfo.Destination != "")
+        {
+            TransferUtils.RemoveDirectory(transferInfo.Destination);
+        }
+        Environment.Exit(0);
+    }
+
     static void Main(string[] args)
     {
+
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(options =>
         {
@@ -73,6 +85,8 @@ class HashTransferService
                 HashType hashType = Input.ParseHashType(options.InputHashType);
 
                 TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode);
+
+                Console.CancelKeyPress += (sender, args) => OnCancelKeyPress(sender, args, transferInfo);
 
                 FileInfoManager fileInfoManager = new();
 
