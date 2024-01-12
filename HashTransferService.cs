@@ -3,7 +3,7 @@ using CommandLine;
 
 class HashTransferService
 {
-    private static HashTransferResult CheckHashMismatch(FileHashManager fileHashManager, TransferInfo transferInfo, HashType hashType, int recopyCtr, int recopyLimit)
+    private static HashTransferResult CheckHashMismatch(FileInfoManager fileInfoManager, TransferInfo transferInfo, HashType hashType, int recopyCtr, int recopyLimit)
     {
         if (recopyCtr > recopyLimit)
         { 
@@ -11,16 +11,16 @@ class HashTransferService
             return HashTransferResult.mismatch;
         }
 
-        fileHashManager.FindHashMismatch();
+        fileInfoManager.FindHashMismatch();
 
-        if (fileHashManager.MismatchHashInfoPair.Count != 0)
+        if (fileInfoManager.MismatchHashInfoPair.Count != 0)
         {
             Console.WriteLine("There are file hashes that did not match");
             Console.WriteLine($"Attempting to recopy mismatched files...{recopyCtr += 1}");
-            fileHashManager.MismatchHashResolver();
-            fileHashManager.UpdateHashInfoList(hashType);
+            fileInfoManager.MismatchHashResolver();
+            fileInfoManager.UpdateHashInfoList(hashType);
             // Only recompares file info of mismatch source and destination file hashes
-            return CheckHashMismatch(fileHashManager, transferInfo, hashType, recopyCtr, recopyLimit); // Recursive
+            return CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit); // Recursive
         }
         else
         {
@@ -74,12 +74,12 @@ class HashTransferService
 
                 TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode);
 
-                FileHashManager fileHashManager = new();
+                FileInfoManager fileInfoManager = new();
 
                 Task task1 = Task.Run(() =>
                 {
                     Console.WriteLine("Fetching source file hashes...");
-                    fileHashManager.GetSourceInfoList(transferInfo.Source, hashType);
+                    fileInfoManager.GetSourceInfoList(transferInfo.Source, hashType);
                 });
 
                 Task task2 = Task.Run(() =>
@@ -91,11 +91,11 @@ class HashTransferService
                 Task.WaitAll(task1, task2);
 
                 Console.WriteLine("Fetching destination file hashes...");
-                fileHashManager.GetDestinationInfoList(transferInfo.Destination, hashType);
+                fileInfoManager.GetDestinationInfoList(transferInfo.Destination, hashType);
 
                 Console.WriteLine("Comparing file hashes...");
                 int recopyCtr = 0; int recopyLimit = 30; // test value
-                HashTransferResult result = CheckHashMismatch(fileHashManager, transferInfo, hashType, recopyCtr, recopyLimit);
+                HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit);
 
                 if (result == HashTransferResult.match)
                 {
@@ -103,7 +103,7 @@ class HashTransferService
                     {
                         TransferUtils.RemoveDirectory(transferInfo.Source);
                     }
-                    Console.WriteLine("All file hashes matched. File Transfer completed successfully!");  
+                    Console.WriteLine($"All {fileInfoManager.SourceInfo.Count} files hashes matched. File transfer completed successfully!");  
                 }
                 else if (result == HashTransferResult.mismatch)
                 {

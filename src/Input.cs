@@ -60,13 +60,4 @@ class Input
             return HashType.MD5; // to satisfy the compiler 
         }
     }
-
-    public static string ParseLeadingSlash(string value)
-    {
-        if (value.StartsWith("/"))
-        {
-            return value.TrimStart('/');
-        }
-        return value;
-    }
 }

@@ -1,7 +1,7 @@
 using System.Data.Common;
 using System.Net.NetworkInformation;
 
-class FileHashManager
+class FileInfoManager
 {
     private List<FileInfo> _sourceInfo;
     private List<FileInfo> _destinationInfo;
@@ -25,7 +25,7 @@ class FileHashManager
         set { _mismatchHashInfoPair = value; }
     }
 
-    public FileHashManager()
+    public FileInfoManager()
     {
         _sourceInfo = new List<FileInfo>();
         _destinationInfo = new List<FileInfo>();
@@ -47,14 +47,17 @@ class FileHashManager
 
                 if (sourceFileInfo.HashValue != destinationFileInfo.HashValue)
                 {
+                    Console.WriteLine("------------------------------------------------------------------------------------");
                     Console.WriteLine($"[MISMATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfo.FilePath))}/{Path.GetFileName(sourceFileInfo.FilePath)}:\n{sourceFileInfo.HashValue}\n-->\n{destinationFileInfo.HashValue}");
                     MismatchHashInfoPair.Add((sourceFileInfo, destinationFileInfo));
                 }
                 else
                 {
+                    Console.WriteLine("------------------------------------------------------------------------------------");
                     Console.WriteLine($"[MATCH] {Path.GetFileName(Path.GetDirectoryName(sourceFileInfo.FilePath))}/{Path.GetFileName(sourceFileInfo.FilePath)}:\n{sourceFileInfo.HashValue}\n-->\n{destinationFileInfo.HashValue}");
                 }
             }
+            Console.WriteLine("------------------------------------------------------------------------------------");
         }
         else 
         {
@@ -64,15 +67,17 @@ class FileHashManager
             {
                 if (pair.sourceInfo.HashValue != pair.destinationInfo.HashValue)
                 {
+                    Console.WriteLine("------------------------------------------------------------------------------------");
                     Console.WriteLine($"[RECHECK MISMATCH] {Path.GetFileName(Path.GetDirectoryName(pair.sourceInfo.FilePath))}/{Path.GetFileName(pair.sourceInfo.FilePath)}:\n{pair.sourceInfo.HashValue}\n-->\n{pair.destinationInfo.HashValue}");
                     updatedMismathHashInfoPairs.Add((pair.sourceInfo, pair.destinationInfo));
                 }
                 else
                 {
+                    Console.WriteLine("------------------------------------------------------------------------------------");
                     Console.WriteLine($"[RECHECK MATCH] {Path.GetFileName(Path.GetDirectoryName(pair.sourceInfo.FilePath))}/{Path.GetFileName(pair.sourceInfo.FilePath)}:\n{pair.sourceInfo.HashValue}\n-->\n{pair.destinationInfo.HashValue}");
                 }
             }
-
+            Console.WriteLine("------------------------------------------------------------------------------------");
             MismatchHashInfoPair = updatedMismathHashInfoPairs;
         }
     }
