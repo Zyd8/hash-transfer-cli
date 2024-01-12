@@ -90,15 +90,14 @@ class FileInfoManager
         }
     }
 
-    public void GetSourceInfoList(string sourcePath, HashType hashType)
+    private List<FileInfo> ProcessFilePaths(string path, HashType hashType)
     {
         List<FileInfo> fileInfoList = new List<FileInfo>();
         int fileInfoCtr = 0;
 
-        if (!Directory.Exists(sourcePath))
+        if (!Directory.Exists(path))
         {
-
-            FileInfo fileInfoObj = new FileInfo(sourcePath, fileInfoCtr += 1);
+            FileInfo fileInfoObj = new FileInfo(path, fileInfoCtr += 1);
             fileInfoList.Add(fileInfoObj);
 
             foreach (FileInfo fileInfo in fileInfoList)
@@ -106,15 +105,18 @@ class FileInfoManager
                 fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
             }
 
-            SourceInfo = fileInfoList;
-            return;
+            return fileInfoList;
         }
 
-        List<string> filePaths = TransferUtils.TraverseDirectories(sourcePath);
+        List<string> filePaths = TransferUtils.TraverseDirectories(path);
 
-        foreach (var path in filePaths)
+        var sortedFilePaths = filePaths
+            .OrderBy(filePath => Path.Combine(Path.GetFileName(Path.GetDirectoryName(filePath)) ?? string.Empty, Path.GetFileName(filePath)))
+            .ToList();
+
+        foreach (var filePath in sortedFilePaths)
         {
-            FileInfo fileInfoObj = new FileInfo(path, fileInfoCtr += 1);
+            FileInfo fileInfoObj = new FileInfo(filePath, fileInfoCtr += 1);
             fileInfoList.Add(fileInfoObj);
         }
 
@@ -123,44 +125,18 @@ class FileInfoManager
             fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
         }
 
-        SourceInfo = fileInfoList;
+        return fileInfoList;
+    }
+
+    public void GetSourceInfoList(string sourcePath, HashType hashType)
+    {
+        SourceInfo = ProcessFilePaths(sourcePath, hashType);
     }
 
     public void GetDestinationInfoList(string destinationPath, HashType hashType)
     {
-        List<FileInfo> fileInfoList = new List<FileInfo>();
-        int fileInfoCtr = 0;
-
-        if (!Directory.Exists(destinationPath))
-        {
-            FileInfo fileInfoObj = new FileInfo(destinationPath, fileInfoCtr += 1);
-            fileInfoList.Add(fileInfoObj);
-
-            foreach (FileInfo fileInfo in fileInfoList)
-            {
-                fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
-            }
-
-            DestinationInfo = fileInfoList;
-            return;
-        }
-
-        List<string> filePaths = TransferUtils.TraverseDirectories(destinationPath);
-
-        foreach (var path in filePaths)
-        {
-            FileInfo fileInfoObj = new FileInfo(path, fileInfoCtr += 1);
-            fileInfoList.Add(fileInfoObj);
-        }
-
-        foreach (FileInfo fileInfo in fileInfoList)
-        {
-            fileInfo.HashValue = Hash.GetFileHash(fileInfo.FilePath, hashType);
-        }
-
-        DestinationInfo = fileInfoList;
+        DestinationInfo = ProcessFilePaths(destinationPath, hashType);
     }
-
     public void UpdateHashInfoList(HashType hashType)
     {
         foreach (var pair in MismatchHashInfoPair)
