@@ -46,24 +46,22 @@ class HashTransferService
     protected static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args, TransferInfo transferInfo)
     {
         Console.WriteLine("Application is called for termination...");
-        Console.WriteLine("Reverting changes...");
-        if (transferInfo.Destination != string.Empty)
+        if (transferInfo.Destination != string.Empty && (transferInfo.transferPhase == TransferPhase.post || transferInfo.transferPhase == TransferPhase.during))
         {
+            Console.WriteLine("Reverting changes...");
             TransferUtils.RemoveDirectory(transferInfo.Destination);
         }
         Environment.Exit(0);
     }
 
-    public static void NoOverwriteFeedbackTermination(TransferInfo transferInfo)
+    public static void NoOverwriteFeedbackTermination()
     {
         Console.WriteLine("Application is called for termination...");
-        Console.WriteLine("Reverting changes...");
         Environment.Exit(0);
     }
 
     static void Main(string[] args)
     {
-
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(options =>
         {
@@ -111,11 +109,13 @@ class HashTransferService
 
                 Task.WaitAll(task1, task2);
 
+                transferInfo.transferPhase = TransferPhase.post;
+
                 Console.WriteLine("Fetching destination file hashes...");
                 fileInfoManager.GetDestinationInfoList(transferInfo.Destination, hashType);
 
                 Console.WriteLine("Comparing file hashes...");
-                int recopyCtr = 0; int recopyLimit = 30; // test value
+                int recopyCtr = 0; int recopyLimit = 3;
                 HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit);
 
                 if (result == HashTransferResult.match)

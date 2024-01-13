@@ -4,12 +4,14 @@ class TransferInfo
     private bool isSourceFile;
     private string destination = "";
     private TransferMode transferMode;
+    public TransferPhase transferPhase;
 
     public TransferInfo(string source, string destination, TransferMode transferMode)
     {
         Source = source;
         Destination = destination;
         TransferMode = transferMode;
+        transferPhase = TransferPhase.pre;
     }
 
     public string Source

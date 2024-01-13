@@ -17,3 +17,10 @@ public enum HashTransferResult
     match,
     mismatch
 }
+
+public enum TransferPhase
+{
+    pre,
+    during,
+    post
+}

@@ -45,6 +45,7 @@ class TransferUtils
         {
             if (!transferInfo.IsSourceFile && !Path.Exists(transferInfo.Destination))
             {
+                transferInfo.transferPhase = TransferPhase.during;
                 CopyDirectory(transferInfo.Source, transferInfo.Destination);
                 return;
             }
@@ -52,14 +53,16 @@ class TransferUtils
             {
                 if (!isOverwrite(transferInfo.Destination))
                 {
-                    HashTransferService.NoOverwriteFeedbackTermination(transferInfo);
+                    HashTransferService.NoOverwriteFeedbackTermination();
                     return;
                 }
+                transferInfo.transferPhase = TransferPhase.during;
                 CopyDirectory(transferInfo.Source, transferInfo.Destination);
                 return;
             }
             else if (transferInfo.IsSourceFile && !Path.Exists(transferInfo.Destination))
             {
+                transferInfo.transferPhase = TransferPhase.during;
                 File.Copy(transferInfo.Source, transferInfo.Destination, true);
                 return;
             }
@@ -67,9 +70,10 @@ class TransferUtils
             {
                 if (!isOverwrite(transferInfo.Destination))
                 {
-                    HashTransferService.NoOverwriteFeedbackTermination(transferInfo);
+                    HashTransferService.NoOverwriteFeedbackTermination();
                     return;
                 }
+                transferInfo.transferPhase = TransferPhase.during;
                 File.Copy(transferInfo.Source, transferInfo.Destination, true);
                 return;
             }
@@ -79,9 +83,9 @@ class TransferUtils
             Console.WriteLine(e.Message);
             Console.WriteLine("You have no permission to modify any of the provided paths. Try running with elevated privileges.");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
+            Console.WriteLine($"An error occurred during transfer operation: {e.Message}");
         }
     }
 
@@ -106,6 +110,13 @@ class TransferUtils
 
     public static void RemoveDirectory(string directoryPath)
     {
-        Directory.Delete(directoryPath, true);
+        try
+        {
+            Directory.Delete(directoryPath, true);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error deleting directory: {e.Message}");
+        }
     }
 }
