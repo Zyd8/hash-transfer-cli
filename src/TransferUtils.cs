@@ -80,16 +80,4 @@ class TransferUtils
             return isOverwrite(path);
         }
     }
-
-    public static void RemoveDirectory(string directoryPath)
-    {
-        try
-        {
-            Directory.Delete(directoryPath, true);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error deleting directory: {e.Message}");
-        }
-    }
 }

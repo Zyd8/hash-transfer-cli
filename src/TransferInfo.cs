@@ -4,7 +4,6 @@ class TransferInfo
     private bool isSourceFile;
     private string destination = "";
     private TransferMode transferMode;
-    public TransferPhase transferPhase;
 
     public TransferInfo(string source, string destination, TransferMode transferMode)
     {

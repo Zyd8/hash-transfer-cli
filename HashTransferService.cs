@@ -43,27 +43,10 @@ class HashTransferService
         public required string InputDestinationPath {get; set;}
     }
 
-    protected static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args, TransferInfo transferInfo)
-    {
-        Console.WriteLine("Application is called for termination...");
-        if (transferInfo.Destination != string.Empty && 
-            (transferInfo.transferPhase == TransferPhase.post || 
-            transferInfo.transferPhase == TransferPhase.during))
-        {
-            Console.WriteLine("Reverting changes...");
-            TransferUtils.RemoveDirectory(transferInfo.Destination);
-        }
-        Environment.Exit(0);
-    }
-
-    public static void NoOverwriteFeedbackTermination()
-    {
-        Console.WriteLine("Application is called for termination...");
-        Environment.Exit(0);
-    }
-
     static void Main(string[] args)
     {
+        Console.CancelKeyPress += (sender, args) => Cleanup.OnCancelKeyPress(sender, args);
+
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(options =>
         {
@@ -79,8 +62,6 @@ class HashTransferService
                     fullSourcePath = Path.GetFullPath(Input.RemoveEndSlash(options.InputSourcePath));
                 }
 
-                Console.WriteLine(fullSourcePath);
-
                 string fullDestinationPath;
                 if (Path.IsPathRooted(options.InputDestinationPath))
                 {
@@ -94,18 +75,12 @@ class HashTransferService
                         Path.GetFullPath(options.InputDestinationPath), 
                         Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
                 }
-
-                 Console.WriteLine(fullDestinationPath);
                
                 TransferMode transferMode = Input.ParseTransferMode(options.InputTransferMode);
 
                 HashType hashType = Input.ParseHashType(options.InputHashType);
 
                 TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode);
-
-                transferInfo.transferPhase = TransferPhase.pre;
-
-                Console.CancelKeyPress += (sender, args) => OnCancelKeyPress(sender, args, transferInfo);
 
                 FileInfoManager fileInfoManager = new();
 
@@ -114,17 +89,16 @@ class HashTransferService
                 {
                     if (!TransferUtils.isOverwrite(transferInfo.Destination))
                     {
-                        NoOverwriteFeedbackTermination();
+                        Cleanup.NoOverwriteFeedbackTermination();
                     }
                 }
+                Cleanup.pathToRemove = transferInfo.Destination;
 
                 Task task1 = Task.Run(() =>
                 {
                     Console.WriteLine("Fetching source file hashes...");
                     fileInfoManager.GetSourceInfoList(transferInfo.Source, hashType);
                 });
-
-                transferInfo.transferPhase = TransferPhase.during;
 
                 Task task2 = Task.Run(() =>
                 {
@@ -133,8 +107,6 @@ class HashTransferService
                 });
 
                 Task.WaitAll(task1, task2);
-
-                transferInfo.transferPhase = TransferPhase.post;
 
                 Console.WriteLine("Fetching destination file hashes...");
                 fileInfoManager.GetDestinationInfoList(transferInfo.Destination, hashType);
@@ -147,7 +119,7 @@ class HashTransferService
                 {
                     if (transferInfo.TransferMode == TransferMode.cut)
                     {
-                        TransferUtils.RemoveDirectory(transferInfo.Source);
+                        Cleanup.RemoveDirectory(transferInfo.Source);
                     }
                     Console.WriteLine($"All {fileInfoManager.SourceInfo.Count} files hashes matched. File transfer completed successfully!");  
                 }
