@@ -47,10 +47,17 @@ class HashTransferService
     {
         Console.WriteLine("Application is called for termination...");
         Console.WriteLine("Reverting changes...");
-        if (transferInfo.Destination != "")
+        if (transferInfo.Destination != string.Empty)
         {
             TransferUtils.RemoveDirectory(transferInfo.Destination);
         }
+        Environment.Exit(0);
+    }
+
+    public static void NoOverwriteFeedbackTermination(TransferInfo transferInfo)
+    {
+        Console.WriteLine("Application is called for termination...");
+        Console.WriteLine("Reverting changes...");
         Environment.Exit(0);
     }
 
