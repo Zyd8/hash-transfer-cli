@@ -46,7 +46,9 @@ class HashTransferService
     protected static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args, TransferInfo transferInfo)
     {
         Console.WriteLine("Application is called for termination...");
-        if (transferInfo.Destination != string.Empty && (transferInfo.transferPhase == TransferPhase.post || transferInfo.transferPhase == TransferPhase.during))
+        if (transferInfo.Destination != string.Empty && 
+            (transferInfo.transferPhase == TransferPhase.post || 
+            transferInfo.transferPhase == TransferPhase.during))
         {
             Console.WriteLine("Reverting changes...");
             TransferUtils.RemoveDirectory(transferInfo.Destination);
@@ -68,22 +70,32 @@ class HashTransferService
                 string fullSourcePath;
                 if (Path.IsPathRooted(options.InputSourcePath))
                 {
-                    fullSourcePath = options.InputSourcePath;
+                    fullSourcePath = Input.RemoveEndSlash(options.InputSourcePath);
                 }
                 else
                 {
-                    fullSourcePath = Path.GetFullPath(options.InputSourcePath);
+                    // RemoveEndSlash() is there to make sure that the provided
+                    // source path is a whole directory and not just the directory contents
+                    fullSourcePath = Path.GetFullPath(Input.RemoveEndSlash(options.InputSourcePath));
                 }
+
+                Console.WriteLine(fullSourcePath);
 
                 string fullDestinationPath;
                 if (Path.IsPathRooted(options.InputDestinationPath))
                 {
-                    fullDestinationPath = Path.Combine(options.InputDestinationPath, Path.GetFileName(options.InputSourcePath));
+                    fullDestinationPath = Path.Combine(
+                        options.InputDestinationPath, 
+                        Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
                 }
                 else
                 {
-                    fullDestinationPath = Path.Combine(Path.GetFullPath(options.InputDestinationPath), Path.GetFileName(options.InputSourcePath));
+                    fullDestinationPath = Path.Combine(
+                        Path.GetFullPath(options.InputDestinationPath), 
+                        Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
                 }
+
+                 Console.WriteLine(fullDestinationPath);
                
                 TransferMode transferMode = Input.ParseTransferMode(options.InputTransferMode);
 

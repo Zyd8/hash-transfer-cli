@@ -60,4 +60,13 @@ class Input
             return HashType.MD5; // to satisfy the compiler 
         }
     }
+
+    public static string RemoveEndSlash(string value)
+    {
+        if (value.EndsWith("/"))
+        {
+            return value.TrimEnd('/');
+        }
+        return value;
+    }
 }
