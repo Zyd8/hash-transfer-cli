@@ -39,15 +39,69 @@ class TransferUtils
         return filePaths;
     }
 
-    public static void DoTransferOperation(TransferInfo TransferInfo)
+    public static void DoTransferOperation(TransferInfo transferInfo)
     {
-        if (!TransferInfo.IsSourceFile)
+        try 
         {
-            CopyDirectory(TransferInfo.Source, TransferInfo.Destination);
-            return;
+            if (!transferInfo.IsSourceFile && !Path.Exists(transferInfo.Destination))
+            {
+                CopyDirectory(transferInfo.Source, transferInfo.Destination);
+                return;
+            }
+            else if (!transferInfo.IsSourceFile && Path.Exists(transferInfo.Destination))
+            {
+                if (!isOverwrite(transferInfo.Destination))
+                {
+                    HashTransferService.NoOverwriteFeedbackTermination(transferInfo);
+                    return;
+                }
+                CopyDirectory(transferInfo.Source, transferInfo.Destination);
+                return;
+            }
+            else if (transferInfo.IsSourceFile && !Path.Exists(transferInfo.Destination))
+            {
+                File.Copy(transferInfo.Source, transferInfo.Destination, true);
+                return;
+            }
+            else if (transferInfo.IsSourceFile && Path.Exists(transferInfo.Destination))
+            {
+                if (!isOverwrite(transferInfo.Destination))
+                {
+                    HashTransferService.NoOverwriteFeedbackTermination(transferInfo);
+                    return;
+                }
+                File.Copy(transferInfo.Source, transferInfo.Destination, true);
+                return;
+            }
         }
-        File.Copy(TransferInfo.Source, TransferInfo.Destination, true);
-        return;
+        catch (UnauthorizedAccessException e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine("You have no permission to modify any of the provided paths. Try running with elevated privileges.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+    }
+
+    private static bool isOverwrite(string path)
+    {
+        Console.Write("Path provided currently exists in the destination. Overwrite? (y/n): ");
+        string? ans = Console.ReadLine();
+        if (string.Equals(ans, "y", StringComparison.OrdinalIgnoreCase) || string.Equals(ans, "yes", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+        else if (string.Equals(ans, "n", StringComparison.OrdinalIgnoreCase) || string.Equals(ans, "no", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+        else
+        {
+            Console.WriteLine("Invalid input. Please enter 'y' or 'n'.");
+            return isOverwrite(path);
+        }
     }
 
     public static void RemoveDirectory(string directoryPath)
