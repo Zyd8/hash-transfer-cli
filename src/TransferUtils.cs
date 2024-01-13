@@ -43,40 +43,13 @@ class TransferUtils
     {
         try 
         {
-            if (!transferInfo.IsSourceFile && !Path.Exists(transferInfo.Destination))
+            if (!transferInfo.IsSourceFile)
             {
-                transferInfo.transferPhase = TransferPhase.during;
                 CopyDirectory(transferInfo.Source, transferInfo.Destination);
                 return;
             }
-            else if (!transferInfo.IsSourceFile && Path.Exists(transferInfo.Destination))
-            {
-                if (!isOverwrite(transferInfo.Destination))
-                {
-                    HashTransferService.NoOverwriteFeedbackTermination();
-                    return;
-                }
-                transferInfo.transferPhase = TransferPhase.during;
-                CopyDirectory(transferInfo.Source, transferInfo.Destination);
-                return;
-            }
-            else if (transferInfo.IsSourceFile && !Path.Exists(transferInfo.Destination))
-            {
-                transferInfo.transferPhase = TransferPhase.during;
-                File.Copy(transferInfo.Source, transferInfo.Destination, true);
-                return;
-            }
-            else if (transferInfo.IsSourceFile && Path.Exists(transferInfo.Destination))
-            {
-                if (!isOverwrite(transferInfo.Destination))
-                {
-                    HashTransferService.NoOverwriteFeedbackTermination();
-                    return;
-                }
-                transferInfo.transferPhase = TransferPhase.during;
-                File.Copy(transferInfo.Source, transferInfo.Destination, true);
-                return;
-            }
+            File.Copy(transferInfo.Source, transferInfo.Destination, true);
+            return;
         }
         catch (UnauthorizedAccessException e)
         {
@@ -89,7 +62,7 @@ class TransferUtils
         }
     }
 
-    private static bool isOverwrite(string path)
+    public static bool isOverwrite(string path)
     {
         Console.Write("Path provided currently exists in the destination. Overwrite? (y/n): ");
         string? ans = Console.ReadLine();

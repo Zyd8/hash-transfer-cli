@@ -11,7 +11,6 @@ class TransferInfo
         Source = source;
         Destination = destination;
         TransferMode = transferMode;
-        transferPhase = TransferPhase.pre;
     }
 
     public string Source

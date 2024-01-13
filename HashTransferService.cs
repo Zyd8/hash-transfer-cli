@@ -91,15 +91,28 @@ class HashTransferService
 
                 TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode);
 
+                transferInfo.transferPhase = TransferPhase.pre;
+
                 Console.CancelKeyPress += (sender, args) => OnCancelKeyPress(sender, args, transferInfo);
 
                 FileInfoManager fileInfoManager = new();
+
+                // Handling of already existing destination path
+                if (Path.Exists(transferInfo.Destination))
+                {
+                    if (!TransferUtils.isOverwrite(transferInfo.Destination))
+                    {
+                        NoOverwriteFeedbackTermination();
+                    }
+                }
 
                 Task task1 = Task.Run(() =>
                 {
                     Console.WriteLine("Fetching source file hashes...");
                     fileInfoManager.GetSourceInfoList(transferInfo.Source, hashType);
                 });
+
+                transferInfo.transferPhase = TransferPhase.during;
 
                 Task task2 = Task.Run(() =>
                 {
