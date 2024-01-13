@@ -37,7 +37,7 @@ class TransferInfo
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Environment.Exit(1); 
+                Cleanup.InputErrorTermination();
             }
 
         }
@@ -62,7 +62,7 @@ class TransferInfo
             catch (DirectoryNotFoundException e)
             {
                 Console.WriteLine(e.Message);
-                Environment.Exit(1); 
+                Cleanup.InputErrorTermination();
             }
         }
     }

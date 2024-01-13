@@ -1,21 +1,14 @@
 class Cleanup
 {
-    public static bool isSigintInvoked;
-
-    public static string pathToRemove = "";
-
+    public static bool isSigintInvoked = false;
+    public static string sourcePath = "";
+    public static string destinationPath = "";
     public static int exceptionRecursiveCtr = 0;
     public static int exceptionRecursiveLimit = 3;
 
-    public static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args)
+    public static void InputErrorTermination()
     {
-        Console.WriteLine("Application is called for termination...");
-        if (pathToRemove != string.Empty)
-        {
-            Console.WriteLine("Reverting changes...");
-            RemoveDirectory(pathToRemove);
-        }
-        Environment.Exit(0);
+        Environment.Exit(1);
     }
 
     public static void NoOverwriteFeedbackTermination()
@@ -24,25 +17,25 @@ class Cleanup
         Environment.Exit(0);
     }
 
-    public static void RemoveDirectory(string directoryPath)
+    public static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args)
     {
-        try
-        {   
-            Directory.Delete(directoryPath, true);
-        }
-        catch (Exception e)
+        isSigintInvoked = true;
+        Console.WriteLine("Application is called for termination...");
+        if (destinationPath != string.Empty)
         {
-            if (exceptionRecursiveCtr >= exceptionRecursiveLimit)
-            {
-                throw new Exception($"An unexpected error occured: {e.Message}");
-            }
-            if (isSigintInvoked)
-            {
-                Console.WriteLine($"Exception raised due to SIGINT, continuing cleanup");
-                exceptionRecursiveCtr += 1;
-                RemoveDirectory(pathToRemove);
-            }
-            Console.WriteLine($"Error deleting directory: {e.Message}");
+            Console.WriteLine("Reverting changes...");
+            RemoveDirectory(destinationPath);
         }
+        Environment.Exit(0);
+    }
+
+    public static void OnCut()
+    {
+        RemoveDirectory(sourcePath);
+    }
+
+    public static void RemoveDirectory(string directoryPath)
+    { 
+        Directory.Delete(directoryPath, true);
     }
 }

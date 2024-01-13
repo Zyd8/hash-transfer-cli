@@ -21,7 +21,7 @@ class Input
         catch (ArgumentException e)
         {
             Console.WriteLine(e.Message);
-            Environment.Exit(1); 
+            Cleanup.InputErrorTermination(); 
             return TransferMode.copy; // to satisfy the compiler 
         }
     }
@@ -56,7 +56,7 @@ class Input
         catch (ArgumentException e)
         {
             Console.WriteLine(e.Message);
-            Environment.Exit(1); 
+            Cleanup.InputErrorTermination();
             return HashType.MD5; // to satisfy the compiler 
         }
     }

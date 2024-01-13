@@ -1,5 +1,4 @@
-﻿
-using CommandLine;
+﻿using CommandLine;
 
 class HashTransferService
 {
@@ -16,9 +15,13 @@ class HashTransferService
         if (fileInfoManager.MismatchHashInfoPair.Count != 0)
         {
             Console.WriteLine("There are file hashes that did not match");
+
             Console.WriteLine($"Attempting to recopy mismatched files...{recopyCtr += 1}");
+
             fileInfoManager.MismatchHashResolver();
+
             fileInfoManager.UpdateHashInfoList(hashType);
+
             // Only recompares file info of mismatch source and destination file hashes
             return CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit); // Recursive
         }
@@ -26,6 +29,20 @@ class HashTransferService
         {
             return HashTransferResult.match;
         }
+    }
+
+    // Handling of already existing destination path
+    public static void HandleExistingDestination(TransferInfo transferInfo)
+    {      
+        if (Path.Exists(transferInfo.Destination))
+        {
+            if (!TransferUtils.isOverwrite(transferInfo.Destination))
+            {
+                Cleanup.NoOverwriteFeedbackTermination();
+            }
+        }
+        Cleanup.sourcePath = transferInfo.Source;
+        Cleanup.destinationPath = transferInfo.Destination;
     }
 
     public class Options
@@ -84,52 +101,57 @@ class HashTransferService
 
                 FileInfoManager fileInfoManager = new();
 
-                // Handling of already existing destination path
-                if (Path.Exists(transferInfo.Destination))
+                HandleExistingDestination(transferInfo);
+
+                try
                 {
-                    if (!TransferUtils.isOverwrite(transferInfo.Destination))
+                    Task task1 = Task.Run(() =>
                     {
-                        Cleanup.NoOverwriteFeedbackTermination();
+                        Console.WriteLine("Fetching source file hashes...");
+                        fileInfoManager.GetSourceInfoList(transferInfo.Source, hashType);
+                    });
+
+                    Task task2 = Task.Run(() =>
+                    {
+                        Console.WriteLine("Transferring files...");
+                        TransferUtils.DoTransferOperation(transferInfo);
+                    });
+
+                    Task.WaitAll(task1, task2);
+
+                    Console.WriteLine("Fetching destination file hashes...");
+                    fileInfoManager.GetDestinationInfoList(transferInfo.Destination, hashType);
+
+                    Console.WriteLine("Comparing file hashes...");
+                    int recopyCtr = 0; int recopyLimit = 3;
+                    HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit);
+
+                    if (result == HashTransferResult.match)
+                    {
+                        if (transferInfo.TransferMode == TransferMode.cut)
+                        {
+                            Cleanup.OnCut();
+                        }
+                        Console.WriteLine($"All {fileInfoManager.SourceInfo.Count} files hashes matched. File transfer completed successfully!");  
+                    }
+                    else if (result == HashTransferResult.mismatch)
+                    {
+                        Console.WriteLine("There are file hashes that did not match.");
                     }
                 }
-                Cleanup.pathToRemove = transferInfo.Destination;
-
-                Task task1 = Task.Run(() =>
+                catch (Exception e)
                 {
-                    Console.WriteLine("Fetching source file hashes...");
-                    fileInfoManager.GetSourceInfoList(transferInfo.Source, hashType);
-                });
-
-                Task task2 = Task.Run(() =>
-                {
-                    Console.WriteLine("Transferring files...");
-                    TransferUtils.DoTransferOperation(transferInfo);
-                });
-
-                Task.WaitAll(task1, task2);
-
-                Console.WriteLine("Fetching destination file hashes...");
-                fileInfoManager.GetDestinationInfoList(transferInfo.Destination, hashType);
-
-                Console.WriteLine("Comparing file hashes...");
-                int recopyCtr = 0; int recopyLimit = 3;
-                HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit);
-
-                if (result == HashTransferResult.match)
-                {
-                    if (transferInfo.TransferMode == TransferMode.cut)
+                    if (Cleanup.exceptionRecursiveCtr >= Cleanup.exceptionRecursiveLimit)
                     {
-                        Cleanup.RemoveDirectory(transferInfo.Source);
+                        throw new Exception($"Recursive exception limit reached: {e.Message}");
                     }
-                    Console.WriteLine($"All {fileInfoManager.SourceInfo.Count} files hashes matched. File transfer completed successfully!");  
-                }
-                else if (result == HashTransferResult.mismatch)
-                {
-                    Console.WriteLine("There are file hashes that did not match.");
-                }
-                else 
-                {
-                    throw new Exception();
+                    if (Cleanup.isSigintInvoked)
+                    {
+                        Console.WriteLine($"Exception raised due to SIGINT, continuing cleanup");
+                        Cleanup.exceptionRecursiveCtr += 1;
+                        Cleanup.RemoveDirectory(Cleanup.destinationPath);
+                    }
+                    Console.WriteLine($"An unexpected error occured:{e.Message}");
                 }
         });
     }
