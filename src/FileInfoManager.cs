@@ -90,7 +90,7 @@ class FileInfoManager
         }
     }
 
-    private List<FileInfo> ProcessFilePaths(string path, HashType hashType)
+    private List<FileInfo> ProcessInfo(string path, HashType hashType)
     {
         List<FileInfo> fileInfoList = new List<FileInfo>();
         int fileInfoCtr = 0;
@@ -130,12 +130,12 @@ class FileInfoManager
 
     public void GetSourceInfoList(string sourcePath, HashType hashType)
     {
-        SourceInfo = ProcessFilePaths(sourcePath, hashType);
+        SourceInfo = ProcessInfo(sourcePath, hashType);
     }
 
     public void GetDestinationInfoList(string destinationPath, HashType hashType)
     {
-        DestinationInfo = ProcessFilePaths(destinationPath, hashType);
+        DestinationInfo = ProcessInfo(destinationPath, hashType);
     }
     public void UpdateHashInfoList(HashType hashType)
     {
