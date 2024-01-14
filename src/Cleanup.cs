@@ -1,10 +1,10 @@
 class Cleanup
 {
-    public static bool isSigintInvoked = false;
-    public static string sourcePath = "";
-    public static string destinationPath = "";
-    public static int exceptionRecursiveCtr = 0;
-    public static int exceptionRecursiveLimit = 3;
+    public static bool IsSigintInvoked { get; set; } = false;
+    public static string SourcePath { get; set; } = "";
+    public static string DestinationPath { get; set; } = "";
+    public static int ExceptionRecursiveCtr { get; set; } = 0;
+    public static int ExceptionRecursiveLimit { get; set; } = 3;
 
     public static void InputErrorTermination()
     {
@@ -19,19 +19,19 @@ class Cleanup
 
     public static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs args)
     {
-        isSigintInvoked = true;
+        IsSigintInvoked = true;
         Console.WriteLine("Application is called for termination...");
-        if (destinationPath != string.Empty)
+        if (DestinationPath != string.Empty)
         {
             Console.WriteLine("Reverting changes...");
-            RemoveDirectory(destinationPath);
+            RemoveDirectory(DestinationPath);
         }
         Environment.Exit(0);
     }
 
     public static void OnCut()
     {
-        RemoveDirectory(sourcePath);
+        RemoveDirectory(SourcePath);
     }
 
     public static void RemoveDirectory(string directoryPath)

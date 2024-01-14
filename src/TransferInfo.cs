@@ -1,10 +1,10 @@
 class TransferInfo
 {
     private string _source = "";
-    private bool _isSourceFile;
     private string _destination = "";
-    private TransferMode _transferMode;
-    private HashType _hashType;
+    public bool IsSourceFile { get; set; }
+    public TransferMode TransferMode { get; set; }
+    public HashType HashType { get; set; }
 
     public TransferInfo(string source, string destination, TransferMode transferMode, HashType hashType)
     {
@@ -66,33 +66,6 @@ class TransferInfo
                 Console.WriteLine(e.Message);
                 Cleanup.InputErrorTermination();
             }
-        }
-    }
-    
-    public bool IsSourceFile
-    {
-        get { return _isSourceFile; }
-        set
-        {
-            _isSourceFile = value;
-        }
-    }
-
-    public TransferMode TransferMode
-    {
-        get { return _transferMode; }
-        set
-        {
-            _transferMode = value;
-        }
-    }
-
-    public HashType HashType
-    {
-        get { return _hashType; }
-        set
-        {
-            _hashType = value;
         }
     }
 }

@@ -3,35 +3,16 @@ using System.Net.NetworkInformation;
 
 class FileInfoManager
 {
-    private List<FileInfo> _sourceInfo;
-    private List<FileInfo> _destinationInfo;
-    private List<(FileInfo sourceInfo, FileInfo destinationInfo)> _mismatchHashInfoPair;
-
-    public List<FileInfo> SourceInfo
-    {
-        get { return _sourceInfo; }
-        set { _sourceInfo = value; }
-    }
-
-    public List<FileInfo> DestinationInfo
-    {
-        get { return _destinationInfo; }
-        set { _destinationInfo = value; }
-    }
-
-    public List<(FileInfo sourceInfo, FileInfo destinationInfo)> MismatchHashInfoPair
-    {
-        get { return _mismatchHashInfoPair; }
-        set { _mismatchHashInfoPair = value; }
-    }
+    public List<FileInfo> SourceInfo { get; set; }
+    public List<FileInfo> DestinationInfo { get; set; }
+    public List<(FileInfo sourceInfo, FileInfo destinationInfo)> MismatchHashInfoPair { get; set; }
 
     public FileInfoManager()
     {
-        _sourceInfo = new List<FileInfo>();
-        _destinationInfo = new List<FileInfo>();
-        _mismatchHashInfoPair = new List<(FileInfo, FileInfo)>();
+        SourceInfo = new List<FileInfo>();
+        DestinationInfo = new List<FileInfo>();
+        MismatchHashInfoPair = new List<(FileInfo, FileInfo)>();
     }
-
 
     public void FindHashMismatch()
     {
@@ -137,7 +118,7 @@ class FileInfoManager
     {
         DestinationInfo = ProcessInfo(transferInfo.Destination, transferInfo.HashType);
     }
-    
+
     public void UpdateHashInfoList(HashType hashType)
     {
         foreach (var pair in MismatchHashInfoPair)

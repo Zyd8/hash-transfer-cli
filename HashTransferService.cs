@@ -41,8 +41,8 @@ class HashTransferService
                 Cleanup.NoOverwriteFeedbackTermination();
             }
         }
-        Cleanup.sourcePath = transferInfo.Source;
-        Cleanup.destinationPath = transferInfo.Destination;
+        Cleanup.SourcePath = transferInfo.Source;
+        Cleanup.DestinationPath = transferInfo.Destination;
     }
 
     public static string GetSourceRelativeOrAbsolutePath(Options options)
@@ -122,15 +122,15 @@ class HashTransferService
                 }
                 catch (Exception e)
                 {
-                    if (Cleanup.exceptionRecursiveCtr >= Cleanup.exceptionRecursiveLimit)
+                    if (Cleanup.ExceptionRecursiveCtr >= Cleanup.ExceptionRecursiveLimit)
                     {
                         throw new Exception($"Recursive exception limit reached: {e.Message}");
                     }
-                    if (Cleanup.isSigintInvoked)
+                    if (Cleanup.IsSigintInvoked)
                     {
                         Console.WriteLine($"Exception raised due to SIGINT, continuing cleanup");
-                        Cleanup.exceptionRecursiveCtr += 1;
-                        Cleanup.RemoveDirectory(Cleanup.destinationPath);
+                        Cleanup.ExceptionRecursiveCtr += 1;
+                        Cleanup.RemoveDirectory(Cleanup.DestinationPath);
                     }
                     Console.WriteLine($"An unexpected error occured:{e.Message}");
                 }
