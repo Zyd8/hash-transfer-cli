@@ -53,13 +53,11 @@ class TransferUtils
         }
         catch (UnauthorizedAccessException e)
         {
-            Console.WriteLine(e.Message);
-            Console.WriteLine("You have no permission to modify any of the provided paths. Try running with elevated privileges.");
-            Environment.Exit(1);
+            Cleanup.UnauthorizedAccessException(e);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"An error occurred during transfer operation: {e.Message}");
+            Console.WriteLine($"An unexpected error occured: {e.Message}");
             Environment.Exit(1);
         }
     }

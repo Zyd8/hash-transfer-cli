@@ -29,6 +29,55 @@ class Cleanup
         Environment.Exit(0);
     }
 
+    public static void CheckExceptionRecursiveRetryReached(Exception e)
+    {
+        if (ExceptionRecursiveRetryCtr >= ExceptionRecursiveRetryLimit)
+        {
+            throw new Exception($"Recursive exception limit reached: {e.Message}");
+        }
+    }
+
+    public static void DirectoryNotFoundException(DirectoryNotFoundException e)
+    {
+        Console.WriteLine(IsSigintInvoked);
+        CheckExceptionRecursiveRetryReached(e);
+        if (IsSigintInvoked)
+        {
+            Console.WriteLine($"Expected Directory not found Exception raised due to SIGINT, continuing cleanup");
+            ExceptionRecursiveRetryCtr += 1;
+            if (Path.Exists(DestinationPath))
+            {
+                RemoveDirectory(DestinationPath);
+            }
+            Environment.Exit(0);
+        }
+        Console.WriteLine($"Directory not found: {e.Message}");
+    }
+
+    public static void FileNotFoundException(FileNotFoundException e)
+    {
+        Console.WriteLine(IsSigintInvoked);
+        CheckExceptionRecursiveRetryReached(e);
+        if (IsSigintInvoked)
+        {
+            Console.WriteLine($"Expected File not found Exception raised due to SIGINT, continuing cleanup");
+            ExceptionRecursiveRetryCtr += 1;
+            if (Path.Exists(DestinationPath))
+            {
+                RemoveDirectory(DestinationPath);
+            }
+            Environment.Exit(0);
+        }
+        Console.WriteLine($"File not found: {e.Message}");
+    }
+
+    public static void UnauthorizedAccessException(UnauthorizedAccessException e)
+    {
+        Console.WriteLine(e.Message);
+        Console.WriteLine("You have no permission to modify any of the provided paths. Try running again with elevated privileges.");
+        Environment.Exit(1);
+    }
+
     public static void OnCut()
     {
         RemoveDirectory(SourcePath);

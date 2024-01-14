@@ -122,33 +122,11 @@ class HashTransferService
                 }
                 catch (DirectoryNotFoundException e)
                 {
-                    if (Cleanup.ExceptionRecursiveRetryCtr >= Cleanup.ExceptionRecursiveRetryLimit)
-                    {
-                        throw new Exception($"Recursive exception limit reached: {e.Message}");
-                    }
-                    if (Cleanup.IsSigintInvoked)
-                    {
-                        Console.WriteLine($"Expected Directory not found Exception raised due to SIGINT, continuing cleanup");
-                        Cleanup.ExceptionRecursiveRetryCtr += 1;
-                        Cleanup.RemoveDirectory(Cleanup.DestinationPath);
-                        Environment.Exit(0);
-                    }
-                    Console.WriteLine($"An unexpected error occured: {e.Message}");
+                    Cleanup.DirectoryNotFoundException(e);
                 }
                 catch (FileNotFoundException e)
                 {
-                    if (Cleanup.ExceptionRecursiveRetryCtr >= Cleanup.ExceptionRecursiveRetryLimit)
-                    {
-                        throw new Exception($"Recursive exception limit reached: {e.Message}");
-                    }
-                    if (Cleanup.IsSigintInvoked)
-                    {
-                        Console.WriteLine($"Expected File not found Exception raised due to SIGINT, continuing cleanup");
-                        Cleanup.ExceptionRecursiveRetryCtr += 1;
-                        Cleanup.RemoveDirectory(Cleanup.DestinationPath);
-                        Environment.Exit(0);
-                    }
-                    Console.WriteLine($"An unexpected error occured: {e.Message}");
+                    Cleanup.FileNotFoundException(e);
                 }
                 catch (Exception e)
                 {
