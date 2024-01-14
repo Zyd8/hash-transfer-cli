@@ -120,7 +120,7 @@ class HashTransferService
                         Console.WriteLine("There are file hashes that did not match.");
                     }
                 }
-                catch (Exception e)
+                catch (DirectoryNotFoundException e)
                 {
                     if (Cleanup.ExceptionRecursiveRetryCtr >= Cleanup.ExceptionRecursiveRetryLimit)
                     {
@@ -128,11 +128,32 @@ class HashTransferService
                     }
                     if (Cleanup.IsSigintInvoked)
                     {
-                        Console.WriteLine($"Exception raised due to SIGINT, continuing cleanup");
+                        Console.WriteLine($"Expected Directory not found Exception raised due to SIGINT, continuing cleanup");
                         Cleanup.ExceptionRecursiveRetryCtr += 1;
                         Cleanup.RemoveDirectory(Cleanup.DestinationPath);
+                        Environment.Exit(0);
                     }
-                    Console.WriteLine($"An unexpected error occured:{e.Message}");
+                    Console.WriteLine($"An unexpected error occured: {e.Message}");
+                }
+                catch (FileNotFoundException e)
+                {
+                    if (Cleanup.ExceptionRecursiveRetryCtr >= Cleanup.ExceptionRecursiveRetryLimit)
+                    {
+                        throw new Exception($"Recursive exception limit reached: {e.Message}");
+                    }
+                    if (Cleanup.IsSigintInvoked)
+                    {
+                        Console.WriteLine($"Expected File not found Exception raised due to SIGINT, continuing cleanup");
+                        Cleanup.ExceptionRecursiveRetryCtr += 1;
+                        Cleanup.RemoveDirectory(Cleanup.DestinationPath);
+                        Environment.Exit(0);
+                    }
+                    Console.WriteLine($"An unexpected error occured: {e.Message}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"An unexpected error occured: {e.Message}");
+                    Environment.Exit(1);
                 }
         });
     }

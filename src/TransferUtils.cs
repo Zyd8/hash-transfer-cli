@@ -55,10 +55,12 @@ class TransferUtils
         {
             Console.WriteLine(e.Message);
             Console.WriteLine("You have no permission to modify any of the provided paths. Try running with elevated privileges.");
+            Environment.Exit(1);
         }
         catch (Exception e)
         {
             Console.WriteLine($"An error occurred during transfer operation: {e.Message}");
+            Environment.Exit(1);
         }
     }
 
