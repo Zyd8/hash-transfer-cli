@@ -1,33 +1,35 @@
 class TransferInfo
 {
-    private string source = "";
-    private bool isSourceFile;
-    private string destination = "";
-    private TransferMode transferMode;
+    private string _source = "";
+    private bool _isSourceFile;
+    private string _destination = "";
+    private TransferMode _transferMode;
+    private HashType _hashType;
 
-    public TransferInfo(string source, string destination, TransferMode transferMode)
+    public TransferInfo(string source, string destination, TransferMode transferMode, HashType hashType)
     {
         Source = source;
         Destination = destination;
         TransferMode = transferMode;
+        HashType = hashType;
     }
 
     public string Source
     {
-        get { return source; }
+        get { return _source; }
         set 
         {   
             try
             {
                 if (File.Exists(value))
                 {
-                    isSourceFile = true;
-                    source = value; 
+                    IsSourceFile = true;
+                    _source = value; 
                 }
                 else if (Directory.Exists(value))
                 {
-                    isSourceFile = false;
-                    source = value;
+                    IsSourceFile = false;
+                    _source = value;
                 }
                 else 
                 {
@@ -45,14 +47,14 @@ class TransferInfo
 
     public string Destination
     {
-        get { return destination; }
+        get { return _destination; }
         set 
         { 
             try
             {
                 if (Directory.Exists(Path.GetDirectoryName(value)))
                 {
-                    destination = value; 
+                    _destination = value; 
                 }
                 else 
                 {
@@ -69,19 +71,28 @@ class TransferInfo
     
     public bool IsSourceFile
     {
-        get { return isSourceFile; }
+        get { return _isSourceFile; }
         set
         {
-            isSourceFile = value;
+            _isSourceFile = value;
         }
     }
 
     public TransferMode TransferMode
     {
-        get { return transferMode; }
+        get { return _transferMode; }
         set
         {
-            transferMode = value;
+            _transferMode = value;
+        }
+    }
+
+    public HashType HashType
+    {
+        get { return _hashType; }
+        set
+        {
+            _hashType = value;
         }
     }
 }

@@ -128,15 +128,16 @@ class FileInfoManager
         return fileInfoList;
     }
 
-    public void GetSourceInfoList(string sourcePath, HashType hashType)
+    public void GetSourceInfoList(TransferInfo transferInfo)
     {
-        SourceInfo = ProcessInfo(sourcePath, hashType);
+        SourceInfo = ProcessInfo(transferInfo.Source, transferInfo.HashType);
     }
 
-    public void GetDestinationInfoList(string destinationPath, HashType hashType)
+    public void GetDestinationInfoList(TransferInfo transferInfo)
     {
-        DestinationInfo = ProcessInfo(destinationPath, hashType);
+        DestinationInfo = ProcessInfo(transferInfo.Destination, transferInfo.HashType);
     }
+    
     public void UpdateHashInfoList(HashType hashType)
     {
         foreach (var pair in MismatchHashInfoPair)

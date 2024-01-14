@@ -2,7 +2,7 @@
 
 class HashTransferService
 {
-    private static HashTransferResult CheckHashMismatch(FileInfoManager fileInfoManager, TransferInfo transferInfo, HashType hashType, int recopyCtr, int recopyLimit)
+    private static HashTransferResult CheckHashMismatch(FileInfoManager fileInfoManager, TransferInfo transferInfo, int recopyCtr, int recopyLimit)
     {
         if (recopyCtr > recopyLimit)
         { 
@@ -20,10 +20,10 @@ class HashTransferService
 
             fileInfoManager.MismatchHashResolver();
 
-            fileInfoManager.UpdateHashInfoList(hashType);
+            fileInfoManager.UpdateHashInfoList(transferInfo.HashType);
 
-            // Only recompares file info of mismatch source and destination file hashes
-            return CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit); // Recursive
+            // Only recompares file info of mismatch source/destination file hashes
+            return CheckHashMismatch(fileInfoManager, transferInfo, recopyCtr, recopyLimit); 
         }
         else
         {
@@ -59,8 +59,7 @@ class HashTransferService
                 }
                 else
                 {
-                    // RemoveEndSlash() is there to make sure that the provided
-                    // source path is a whole directory and not just the directory contents
+                    // RemoveEndSlash() is there to make sure that the provided source path is a whole directory and not just the directory contents
                     fullSourcePath = Path.GetFullPath(Input.RemoveEndSlash(options.InputSourcePath));
                 }
 
@@ -82,7 +81,7 @@ class HashTransferService
 
                 HashType hashType = Input.ParseHashType(options.InputHashType);
 
-                TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode);
+                TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode, hashType);
 
                 FileInfoManager fileInfoManager = new();
 
@@ -93,7 +92,7 @@ class HashTransferService
                     Task task1 = Task.Run(() =>
                     {
                         Console.WriteLine("Fetching source file hashes...");
-                        fileInfoManager.GetSourceInfoList(transferInfo.Source, hashType);
+                        fileInfoManager.GetSourceInfoList(transferInfo);
                     });
 
                     Task task2 = Task.Run(() =>
@@ -105,11 +104,11 @@ class HashTransferService
                     Task.WaitAll(task1, task2);
 
                     Console.WriteLine("Fetching destination file hashes...");
-                    fileInfoManager.GetDestinationInfoList(transferInfo.Destination, hashType);
+                    fileInfoManager.GetDestinationInfoList(transferInfo);
 
                     Console.WriteLine("Comparing file hashes...");
                     int recopyCtr = 0; int recopyLimit = 3;
-                    HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, hashType, recopyCtr, recopyLimit);
+                    HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, recopyCtr, recopyLimit);
 
                     if (result == HashTransferResult.match)
                     {
