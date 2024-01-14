@@ -2,7 +2,7 @@
 
 class HashTransferService
 {
-    private static HashTransferResult CheckHashMismatch(FileInfoManager fileInfoManager, TransferInfo transferInfo, int recopyCtr, int recopyLimit)
+    private static HashTransferResult HandleHashMismatch(FileInfoManager fileInfoManager, TransferInfo transferInfo, int recopyCtr, int recopyLimit)
     {
         if (recopyCtr > recopyLimit)
         { 
@@ -23,7 +23,7 @@ class HashTransferService
             fileInfoManager.UpdateHashInfoList(transferInfo.HashType);
 
             // Only recompares file info of mismatch source/destination file hashes
-            return CheckHashMismatch(fileInfoManager, transferInfo, recopyCtr, recopyLimit); 
+            return HandleHashMismatch(fileInfoManager, transferInfo, recopyCtr, recopyLimit); 
         }
         else
         {
@@ -105,7 +105,7 @@ class HashTransferService
 
                     Console.WriteLine("Comparing file hashes...");
                     int recopyCtr = 0; int recopyLimit = 3;
-                    HashTransferResult result = CheckHashMismatch(fileInfoManager, transferInfo, recopyCtr, recopyLimit);
+                    HashTransferResult result = HandleHashMismatch(fileInfoManager, transferInfo, recopyCtr, recopyLimit);
 
                     if (result == HashTransferResult.match)
                     {
@@ -122,14 +122,14 @@ class HashTransferService
                 }
                 catch (Exception e)
                 {
-                    if (Cleanup.ExceptionRecursiveCtr >= Cleanup.ExceptionRecursiveLimit)
+                    if (Cleanup.ExceptionRecursiveRetryCtr >= Cleanup.ExceptionRecursiveRetryLimit)
                     {
                         throw new Exception($"Recursive exception limit reached: {e.Message}");
                     }
                     if (Cleanup.IsSigintInvoked)
                     {
                         Console.WriteLine($"Exception raised due to SIGINT, continuing cleanup");
-                        Cleanup.ExceptionRecursiveCtr += 1;
+                        Cleanup.ExceptionRecursiveRetryCtr += 1;
                         Cleanup.RemoveDirectory(Cleanup.DestinationPath);
                     }
                     Console.WriteLine($"An unexpected error occured:{e.Message}");

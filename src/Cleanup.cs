@@ -3,8 +3,8 @@ class Cleanup
     public static bool IsSigintInvoked { get; set; } = false;
     public static string SourcePath { get; set; } = "";
     public static string DestinationPath { get; set; } = "";
-    public static int ExceptionRecursiveCtr { get; set; } = 0;
-    public static int ExceptionRecursiveLimit { get; set; } = 3;
+    public static int ExceptionRecursiveRetryCtr { get; set; } = 0;
+    public static int ExceptionRecursiveRetryLimit { get; set; } = 3;
 
     public static void InputErrorTermination()
     {
