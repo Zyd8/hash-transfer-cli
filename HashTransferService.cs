@@ -45,6 +45,28 @@ class HashTransferService
         Cleanup.destinationPath = transferInfo.Destination;
     }
 
+    public static string GetSourceRelativeOrAbsolutePath(Options options)
+    {
+        // Absolute path
+        if (Path.IsPathRooted(options.InputSourcePath))
+        {
+           return Input.RemoveEndSlash(options.InputSourcePath);
+        }
+        // Relative path
+        return Path.GetFullPath(Input.RemoveEndSlash(options.InputSourcePath));
+    }
+
+    public static string GetDestinationRelativeOrAbsolutePath(Options options)
+    {
+        // Absolute path
+        if (Path.IsPathRooted(options.InputDestinationPath))
+        {
+            return Path.Combine(options.InputDestinationPath, Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
+        }
+        // Relative path
+        return Path.Combine(Path.GetFullPath(options.InputDestinationPath), Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
+    }
+
     static void Main(string[] args)
     {
         Console.CancelKeyPress += (sender, args) => Cleanup.OnCancelKeyPress(sender, args);
@@ -52,37 +74,12 @@ class HashTransferService
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(options =>
         {
-                string fullSourcePath;
-                if (Path.IsPathRooted(options.InputSourcePath))
-                {
-                    fullSourcePath = Input.RemoveEndSlash(options.InputSourcePath);
-                }
-                else
-                {
-                    // RemoveEndSlash() is there to make sure that the provided source path is a whole directory and not just the directory contents
-                    fullSourcePath = Path.GetFullPath(Input.RemoveEndSlash(options.InputSourcePath));
-                }
-
-                string fullDestinationPath;
-                if (Path.IsPathRooted(options.InputDestinationPath))
-                {
-                    fullDestinationPath = Path.Combine(
-                        options.InputDestinationPath, 
-                        Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
-                }
-                else
-                {
-                    fullDestinationPath = Path.Combine(
-                        Path.GetFullPath(options.InputDestinationPath), 
-                        Path.GetFileName(Input.RemoveEndSlash(options.InputSourcePath)));
-                }
-               
+                string fullSourcePath = GetSourceRelativeOrAbsolutePath(options);
+                string fullDestinationPath = GetDestinationRelativeOrAbsolutePath(options);   
                 TransferMode transferMode = Input.ParseTransferMode(options.InputTransferMode);
-
                 HashType hashType = Input.ParseHashType(options.InputHashType);
 
                 TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode, hashType);
-
                 FileInfoManager fileInfoManager = new();
 
                 HandleExistingDestination(transferInfo);
