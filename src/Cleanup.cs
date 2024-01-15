@@ -39,7 +39,6 @@ class Cleanup
 
     public static void DirectoryNotFoundException(DirectoryNotFoundException e)
     {
-        Console.WriteLine(IsSigintInvoked);
         CheckExceptionRecursiveRetryReached(e);
         if (IsSigintInvoked)
         {
