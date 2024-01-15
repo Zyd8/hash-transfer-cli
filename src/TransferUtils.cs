@@ -55,11 +55,6 @@ class TransferUtils
         {
             Cleanup.UnauthorizedAccessException(e);
         }
-        catch (Exception e)
-        {
-            Console.WriteLine($"An unexpected error occured: {e.Message}");
-            Environment.Exit(1);
-        }
     }
 
     public static bool isOverwrite(string path)

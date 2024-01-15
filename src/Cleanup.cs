@@ -21,7 +21,7 @@ class Cleanup
     {
         IsSigintInvoked = true;
         Console.WriteLine("Application is called for termination...");
-        if (DestinationPath != string.Empty)
+         if (Path.Exists(DestinationPath))
         {
             Console.WriteLine("Reverting changes...");
             RemoveDirectory(DestinationPath);
@@ -55,7 +55,6 @@ class Cleanup
 
     public static void FileNotFoundException(FileNotFoundException e)
     {
-        Console.WriteLine(IsSigintInvoked);
         CheckExceptionRecursiveRetryReached(e);
         if (IsSigintInvoked)
         {
