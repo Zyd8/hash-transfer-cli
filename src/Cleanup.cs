@@ -21,8 +21,6 @@ class Cleanup
     {
         IsSigintInvoked = true;
         Console.WriteLine("Application is called for termination...");
-        Console.WriteLine("Reverting changes...");
-        RemoveDestination();
         Environment.Exit(0);
     }
 
@@ -39,9 +37,8 @@ class Cleanup
         CheckExceptionRecursiveRetryReached(e);
         if (IsSigintInvoked)
         {
-            Console.WriteLine($"Expected Directory not found Exception raised due to SIGINT, continuing cleanup");
+            Console.WriteLine($"Expected Directory not found Exception raised due to SIGINT");
             ExceptionRecursiveRetryCtr += 1;
-            RemoveDestination();
             Environment.Exit(0);
         }
         Console.WriteLine($"Directory not found: {e.Message}");
@@ -52,9 +49,8 @@ class Cleanup
         CheckExceptionRecursiveRetryReached(e);
         if (IsSigintInvoked)
         {
-            Console.WriteLine($"Expected File not found Exception raised due to SIGINT, continuing cleanup");
+            Console.WriteLine($"Expected File not found Exception raised due to SIGINT");
             ExceptionRecursiveRetryCtr += 1;
-            RemoveDestination();
             Environment.Exit(0);
         }
         Console.WriteLine($"File not found: {e.Message}");
@@ -65,9 +61,8 @@ class Cleanup
         CheckExceptionRecursiveRetryReached(e);
         if (IsSigintInvoked)
         {
-            Console.WriteLine($"Unauthorized Access Exception raised due to SIGINT, continuing cleanup");
+            Console.WriteLine($"Expected Unauthorized Access Exception raised due to SIGINT");
             ExceptionRecursiveRetryCtr += 1;
-            RemoveDestination();
             Environment.Exit(0);
         }
         Console.WriteLine(e.Message);
@@ -80,9 +75,8 @@ class Cleanup
         CheckExceptionRecursiveRetryReached(e);
         if (IsSigintInvoked)
         {
-            Console.WriteLine($"Input/Output Exception raised due to SIGINT, continuing cleanup");
+            Console.WriteLine($"Expected Input/Output Exception raised due to SIGINT.");
             ExceptionRecursiveRetryCtr += 1;
-            RemoveDestination();
             Environment.Exit(0);
         }
         Console.WriteLine($"Input/Output error: {e.Message}");
@@ -92,15 +86,38 @@ class Cleanup
     {
         if (Path.Exists(SourcePath))
         {
-            TransferUtils.RemoveDirectory(SourcePath);
+            try
+            {
+                TransferUtils.RemoveDirectory(SourcePath);
+            }
+            catch (IOException e)
+            {
+                IOException(e);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                UnauthorizedAccessException(e);
+            }
         }
     }
 
     public static void RemoveDestination()
     {
+        Console.WriteLine(Path.Exists(DestinationPath));
         if (Path.Exists(DestinationPath))
         {
-            TransferUtils.RemoveDirectory(DestinationPath);
+            try
+            {
+                TransferUtils.RemoveDirectory(DestinationPath);
+            }
+            catch (IOException e)
+            {
+                IOException(e);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                UnauthorizedAccessException(e);
+            }
         }
     }
 }
