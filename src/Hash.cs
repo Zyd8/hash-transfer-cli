@@ -1,20 +1,36 @@
 using System.Security.Cryptography;
-
+using System.IO.Hashing;
 class Hash
 {
     public static string GetFileHash(string path, HashType hashType)
     {
-        using (var stream = File.OpenRead(path))
+        byte[] fileBytes = File.ReadAllBytes(path);
+
+        if (hashType == HashType.CRC32)
+        { 
+            Crc32 crc32 = new Crc32();
+            Span<byte> hashBytes = new byte[crc32.HashLengthInBytes];
+            Crc32.Hash(fileBytes, hashBytes);
+
+            return BitConverter.ToString(hashBytes.ToArray()).Replace("-", "").ToLower();
+        }
+        else if (hashType == HashType.CRC64)
         {
-            using (var hashAlgorithm = GetHashAlgorithm(hashType))
-            {
-                byte[] hashBytes = hashAlgorithm.ComputeHash(stream);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            }
+            Crc64 crc64 = new Crc64();
+            Span<byte> hashBytes = new byte[crc64.HashLengthInBytes];
+            Crc64.Hash(fileBytes, hashBytes);
+
+            return BitConverter.ToString(hashBytes.ToArray()).Replace("-", "").ToLower();
+        }
+
+        using (var hashAlgorithm = GetCryptHashAlgorithm(hashType))
+        {
+            byte[] hashBytes = hashAlgorithm.ComputeHash(fileBytes);
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
 
-    private static HashAlgorithm GetHashAlgorithm(HashType hashType)
+    private static HashAlgorithm GetCryptHashAlgorithm(HashType hashType)
     {
         switch (hashType)
         {

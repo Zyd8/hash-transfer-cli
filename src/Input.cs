@@ -48,6 +48,14 @@ class Input
             {
                 return HashType.SHA512;
             }
+            else if (string.Equals(value, "crc32", StringComparison.OrdinalIgnoreCase))
+            {
+                return HashType.CRC32;
+            }
+            else if (string.Equals(value, "crc64", StringComparison.OrdinalIgnoreCase))
+            {
+                return HashType.CRC64;
+            }
             else
             {
                 throw new ArgumentException("Invalid hash algorithm. Please enter either 'md5'(default), 'sha1', 'sha256' or 'sha512'");
