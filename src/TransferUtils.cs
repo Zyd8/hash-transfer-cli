@@ -1,6 +1,6 @@
 class TransferUtils
 {
-    public static void CopyDirectory(string sourcePath, string destinationPath)
+    private static void CopyDirectory(string sourcePath, string destinationPath)
     {
         if (!Directory.Exists(destinationPath))
         {
@@ -41,20 +41,13 @@ class TransferUtils
 
     public static void DoTransferOperation(TransferInfo transferInfo)
     {
-        try 
+        if (!transferInfo.IsSourceFile)
         {
-            if (!transferInfo.IsSourceFile)
-            {
-                CopyDirectory(transferInfo.Source, transferInfo.Destination);
-                return;
-            }
-            File.Copy(transferInfo.Source, transferInfo.Destination, true);
+            CopyDirectory(transferInfo.Source, transferInfo.Destination);
             return;
         }
-        catch (UnauthorizedAccessException e)
-        {
-            Cleanup.UnauthorizedAccessException(e);
-        }
+        File.Copy(transferInfo.Source, transferInfo.Destination, true);
+        return;
     }
 
     public static bool isOverwrite(string path)
@@ -74,5 +67,10 @@ class TransferUtils
             Console.WriteLine("Invalid input. Please enter 'y' or 'n'.");
             return isOverwrite(path);
         }
+    }
+
+    public static void RemoveDirectory(string directoryPath)
+    { 
+        Directory.Delete(directoryPath, true);
     }
 }

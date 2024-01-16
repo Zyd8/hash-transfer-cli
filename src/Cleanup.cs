@@ -21,11 +21,8 @@ class Cleanup
     {
         IsSigintInvoked = true;
         Console.WriteLine("Application is called for termination...");
-         if (Path.Exists(DestinationPath))
-        {
-            Console.WriteLine("Reverting changes...");
-            RemoveDirectory(DestinationPath);
-        }
+        Console.WriteLine("Reverting changes...");
+        RemoveDestination();
         Environment.Exit(0);
     }
 
@@ -44,10 +41,7 @@ class Cleanup
         {
             Console.WriteLine($"Expected Directory not found Exception raised due to SIGINT, continuing cleanup");
             ExceptionRecursiveRetryCtr += 1;
-            if (Path.Exists(DestinationPath))
-            {
-                RemoveDirectory(DestinationPath);
-            }
+            RemoveDestination();
             Environment.Exit(0);
         }
         Console.WriteLine($"Directory not found: {e.Message}");
@@ -60,10 +54,7 @@ class Cleanup
         {
             Console.WriteLine($"Expected File not found Exception raised due to SIGINT, continuing cleanup");
             ExceptionRecursiveRetryCtr += 1;
-            if (Path.Exists(DestinationPath))
-            {
-                RemoveDirectory(DestinationPath);
-            }
+            RemoveDestination();
             Environment.Exit(0);
         }
         Console.WriteLine($"File not found: {e.Message}");
@@ -71,18 +62,45 @@ class Cleanup
 
     public static void UnauthorizedAccessException(UnauthorizedAccessException e)
     {
+        CheckExceptionRecursiveRetryReached(e);
+        if (IsSigintInvoked)
+        {
+            Console.WriteLine($"Unauthorized Access Exception raised due to SIGINT, continuing cleanup");
+            ExceptionRecursiveRetryCtr += 1;
+            RemoveDestination();
+            Environment.Exit(0);
+        }
         Console.WriteLine(e.Message);
         Console.WriteLine("You have no permission to modify any of the provided paths. Try running again with elevated privileges.");
         Environment.Exit(1);
     }
 
-    public static void OnCut()
+    public static void IOException(IOException e)
     {
-        RemoveDirectory(SourcePath);
+        CheckExceptionRecursiveRetryReached(e);
+        if (IsSigintInvoked)
+        {
+            Console.WriteLine($"Input/Output Exception raised due to SIGINT, continuing cleanup");
+            ExceptionRecursiveRetryCtr += 1;
+            RemoveDestination();
+            Environment.Exit(0);
+        }
+        Console.WriteLine($"Input/Output error: {e.Message}");
     }
 
-    public static void RemoveDirectory(string directoryPath)
-    { 
-        Directory.Delete(directoryPath, true);
+    public static void RemoveSource()
+    {
+        if (Path.Exists(SourcePath))
+        {
+            TransferUtils.RemoveDirectory(SourcePath);
+        }
+    }
+
+    public static void RemoveDestination()
+    {
+        if (Path.Exists(DestinationPath))
+        {
+            TransferUtils.RemoveDirectory(DestinationPath);
+        }
     }
 }

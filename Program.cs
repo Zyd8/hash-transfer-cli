@@ -111,7 +111,7 @@ class Program
                     {
                         if (transferInfo.TransferMode == TransferMode.cut)
                         {
-                            Cleanup.OnCut();
+                            Cleanup.RemoveSource();
                         }
                         Console.WriteLine($"All {fileInfoManager.SourceInfo.Count} files hashes matched. File transfer completed successfully!");  
                     }
@@ -127,6 +127,14 @@ class Program
                 catch (FileNotFoundException e)
                 {
                     Cleanup.FileNotFoundException(e);
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Cleanup.UnauthorizedAccessException(e);
+                }
+                catch (IOException e)
+                {
+                    Cleanup.IOException(e);
                 }
                 catch (Exception e)
                 {
