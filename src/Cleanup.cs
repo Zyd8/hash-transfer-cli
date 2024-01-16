@@ -103,7 +103,6 @@ class Cleanup
 
     public static void RemoveDestination()
     {
-        Console.WriteLine(Path.Exists(DestinationPath));
         if (Path.Exists(DestinationPath))
         {
             try
