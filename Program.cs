@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-class HashTransferService
+class Program
 {
     private static HashTransferResult HandleHashMismatch(FileInfoManager fileInfoManager, TransferInfo transferInfo, int recopyCtr, int recopyLimit)
     {
@@ -86,11 +86,19 @@ class HashTransferService
 
                 try
                 {
-                    Console.WriteLine("Fetching source file hashes...");
-                    fileInfoManager.GetSourceInfoList(transferInfo);
+                    Task task1 = Task.Run(() =>
+                    {
+                        Console.WriteLine("Fetching source file hashes...");
+                        fileInfoManager.GetSourceInfoList(transferInfo);
+                    });
 
-                    Console.WriteLine("Transferring files...");
-                    TransferUtils.DoTransferOperation(transferInfo);
+                    Task task2 = Task.Run(() =>
+                    {
+                        Console.WriteLine("Transferring files...");
+                        TransferUtils.DoTransferOperation(transferInfo);
+                    });
+
+                    Task.WaitAll(task1, task2);
 
                     Console.WriteLine("Fetching destination file hashes...");
                     fileInfoManager.GetDestinationInfoList(transferInfo);
