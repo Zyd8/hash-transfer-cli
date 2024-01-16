@@ -14,7 +14,7 @@ Hashing in simple words takes an input such as a file, then tries to return a un
 # Installation (Windows and Linux)
 
 ## GUI installation
-In the [Release](https://github.com/Zyd8/hash-transfer-cli) section, download the correcy package according to your operating system.
+In the [Release](https://github.com/Zyd8/hash-transfer-cli) section, download the correct package according to your operating system.
 
 ## CLI installation
 Open the terminal or cmd and enter: `wget [link]`.
@@ -30,17 +30,17 @@ Open the terminal or cmd and enter: `wget [link]`.
 - source - the file or directory you want to transfer.
 - destination - the directory you want the source to be inside of.
 - mode - the transfer modes.
-  - copy (default) - copies the file or directory from source to destination.
+  - **copy (default)** - copies the file or directory from source to destination.
   - cut - does the same thing as copy but the source file or directory is deleted after the transfer operation
 - hash - the hash algorithms (sorted starting from the least secure to the most secure; starting from the fastest to lowest).
   - crc32
   - crc64
-  - md5 (default)
+  - **md5 (default)**
   - sha1
   - sha256
   - sha512
 
-## For windows
+## For Windows
 
 Launch cmd and `cd` your way into the repository folder where hash-transfer-cli.exe is located.
 
