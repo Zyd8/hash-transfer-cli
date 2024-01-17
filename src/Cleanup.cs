@@ -2,7 +2,6 @@ class Cleanup
 {
     public static bool IsSigintInvoked { get; set; } = false;
     public static string SourcePath { get; set; } = "";
-    public static string DestinationPath { get; set; } = "";
     public static int ExceptionRecursiveRetryCtr { get; set; } = 0;
     public static int ExceptionRecursiveRetryLimit { get; set; } = 3;
 
@@ -89,25 +88,6 @@ class Cleanup
             try
             {
                 TransferUtils.RemoveDirectory(SourcePath);
-            }
-            catch (IOException e)
-            {
-                IOException(e);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                UnauthorizedAccessException(e);
-            }
-        }
-    }
-
-    public static void RemoveDestination()
-    {
-        if (Path.Exists(DestinationPath))
-        {
-            try
-            {
-                TransferUtils.RemoveDirectory(DestinationPath);
             }
             catch (IOException e)
             {

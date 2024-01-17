@@ -32,17 +32,15 @@ class Program
     }
 
     // Handling of already existing destination path
-    public static void HandleExistingDestination(TransferInfo transferInfo)
+    public static void HandleExistingDestination(string destinationPath)
     {      
-        if (Path.Exists(transferInfo.Destination))
+        if (Path.Exists(destinationPath))
         {
-            if (!TransferUtils.isOverwrite(transferInfo.Destination))
+            if (!TransferUtils.isOverwrite(destinationPath))
             {
                 Cleanup.NoOverwriteFeedbackTermination();
             }
         }
-        Cleanup.SourcePath = transferInfo.Source;
-        Cleanup.DestinationPath = transferInfo.Destination;
     }
 
     public static string GetSourceRelativeOrAbsolutePath(Options options)
@@ -82,7 +80,8 @@ class Program
                 TransferInfo transferInfo = new(fullSourcePath, fullDestinationPath, transferMode, hashType);
                 FileInfoManager fileInfoManager = new();
 
-                HandleExistingDestination(transferInfo);
+                HandleExistingDestination(transferInfo.Destination);
+                Cleanup.SourcePath = transferInfo.Source;
 
                 try
                 {

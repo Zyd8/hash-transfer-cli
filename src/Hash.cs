@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.IO.Hashing;
+
 class Hash
 {
     public static string GetFileHash(string path, HashType hashType)
