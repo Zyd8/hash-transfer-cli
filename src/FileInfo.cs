@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 class FileInfo
 {
     public int Key { get; set; }

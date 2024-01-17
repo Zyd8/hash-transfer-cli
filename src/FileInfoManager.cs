@@ -1,6 +1,3 @@
-using System.Data.Common;
-using System.Net.NetworkInformation;
-
 class FileInfoManager
 {
     public List<FileInfo> SourceInfo { get; set; }

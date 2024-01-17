@@ -23,14 +23,14 @@ class Hash
             return BitConverter.ToString(hashBytes.ToArray()).Replace("-", "").ToLower();
         }
 
-        using (var hashAlgorithm = GetCryptHashAlgorithm(hashType))
+        using (var hashAlgorithm = GetCryptographicHashAlgorithm(hashType))
         {
             byte[] hashBytes = hashAlgorithm.ComputeHash(fileBytes);
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
 
-    private static HashAlgorithm GetCryptHashAlgorithm(HashType hashType)
+    private static HashAlgorithm GetCryptographicHashAlgorithm(HashType hashType)
     {
         switch (hashType)
         {
