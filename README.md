@@ -7,17 +7,25 @@ Hashing in simple words takes an input such as a file, then tries to return a un
 
 ## Why do file hashing during transfer operations? 
 - To primarly avoid corruption in general. The probability of a corruption happening during a day-to-day file transfer is very unlikely. However, it is always not zero.
-  - Handling of critical data. When it is absolutely necessary that a file must be identical to another, because one single flip of a bit could render a file unreadable or broken.(Especially for compressed or encrpyted data).
+  - Handling of critical data. When it is absolutely necessary that a file must be identical to another, because one single flip of a bit could render a file unreadable or broken. (Especially for compressed or encrpyted data).
   - Handling of massive amounts of data. If you're copying Terabytes of data to another location, it is very time-consuming to check each and every one of your ____ collection to see if it is not corrupted.
   - Assurance. It is reassuring to see for yourself that data integrity measures are being actively done. (Especially for "paranoids" like me).
 
 # Installation (Windows and Linux)
 
 ## GUI installation
-In the [Release](https://github.com/Zyd8/hash-transfer-cli) section, download the correct package according to your operating system.
+In the [Release](https://github.com/Zyd8/hash-transfer-cli/releases) section, download the correct package according to your operating system.
 
 ## CLI installation
-Open the terminal or cmd and enter: `wget [link]`.
+Open the terminal or cmd and enter: 
+
+```
+// for linux
+wget https://github.com/Zyd8/hash-transfer-cli/releases/download/v0.10-beta/hash-transfer-cli_linux-x64.tar.gz
+
+// for windows
+curl -o https://github.com/Zyd8/hash-transfer-cli/releases/download/v0.10-beta/hash-transfer-cli_win-x64.zip
+```
 
 # Usage
 
