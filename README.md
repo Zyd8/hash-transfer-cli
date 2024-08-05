@@ -1,4 +1,7 @@
 # hash-transfer-cli
+
+https://github.com/user-attachments/assets/14047ebf-59a7-4a92-b824-3dc34d1b2e6e
+
 A **secure** command-line tool for copying and moving files securely between locations. This tool supports a variety of hash algorithms to ensure data integrity during the transfer process. 
 Additionally, it includes **safeguarding** measures to enhance the reliability of file transfers. It is compatible with both Linux and Windows.
 
